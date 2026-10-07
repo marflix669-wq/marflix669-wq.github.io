@@ -136,7 +136,7 @@ function init() {
     camera.fov = wide ? 45 : 58;
     camera.updateProjectionMatrix();
     if (wide) { logoGroup.position.set(Math.min(3.3, w / h * 1.3), 1.9, 0); logoGroup.scale.setScalar(0.9); }
-    else { logoGroup.position.set(0, 3.9, -1); logoGroup.scale.setScalar(0.62); }
+    else { logoGroup.position.set(0, 3.55, -1); logoGroup.scale.setScalar(0.62); }
     baseY = logoGroup.position.y;
   }
   new ResizeObserver(resize).observe(hero); resize();
