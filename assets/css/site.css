@@ -541,3 +541,17 @@ body::before{display:none}
 .viewer-edge{display:none}
 
 .photo-tag{white-space:nowrap;width:max-content}
+
+
+/* ---------- Mise en avant des maillots sur l’accueil ---------- */
+.jersey-feature{padding-top:20px}
+.jersey-feature-inner{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.9fr);gap:clamp(28px,6vw,88px);align-items:center;padding:clamp(22px,4vw,54px);border:1px solid var(--line);border-radius:var(--radius);background:radial-gradient(ellipse at 85% 10%,rgba(227,191,115,.11),transparent 52%),#0b0b0a;overflow:hidden}
+.jersey-feature-copy .section-title{max-width:10ch}
+.jersey-feature-copy .section-copy{margin-bottom:28px}
+.jersey-feature-image{position:relative;display:block;overflow:hidden;border-radius:calc(var(--radius) - 4px);border:1px solid rgba(227,191,115,.25);background:#151513}
+.jersey-feature-image img{display:block;width:100%;aspect-ratio:1.18/1;object-fit:cover;object-position:center 34%;transition:transform .6s ease}
+.jersey-feature-image:hover img{transform:scale(1.04)}
+.jersey-image-label{position:absolute;inset:auto 14px 14px 14px;display:flex;justify-content:space-between;align-items:center;padding:13px 16px;background:rgba(6,6,6,.82);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.14);border-radius:10px;color:var(--text);font-size:.76rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
+.jersey-image-label span{color:var(--gold-2);font-size:1.2rem}
+@media(max-width:860px){.jersey-feature{padding-top:0}.jersey-feature-inner{grid-template-columns:1fr;gap:26px;padding:22px}.jersey-feature-copy .section-title{max-width:14ch}.jersey-feature-image img{aspect-ratio:1.2/1;max-height:390px}.jersey-feature-copy .btn{width:100%}}
+@media(max-width:480px){.jersey-feature-inner{padding:16px}.jersey-feature-image img{aspect-ratio:1/1;max-height:none}.jersey-image-label{inset:auto 10px 10px;padding:11px 12px;font-size:.68rem}}
