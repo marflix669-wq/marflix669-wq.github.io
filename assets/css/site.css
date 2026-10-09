@@ -539,3 +539,5 @@ body::before{display:none}
 
 /* Viewer maillot : transition en fondu, pas de tranche dorée visible */
 .viewer-edge{display:none}
+
+.photo-tag{white-space:nowrap;width:max-content}
