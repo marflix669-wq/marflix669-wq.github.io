@@ -536,3 +536,6 @@ body::before{display:none}
 /* Vidéos : le bouton play est centré dans le rectangle */
 .video-ghost{place-content:center;place-items:center}
 .viewer-face.back{display:none}
+
+/* Viewer maillot : transition en fondu, pas de tranche dorée visible */
+.viewer-edge{display:none}

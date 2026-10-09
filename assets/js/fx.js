@@ -63,8 +63,13 @@
         current = name; setTab(name);
         const swap = () => { img.src = b.dataset.src; img.alt = b.dataset.alt || ''; };
         if (reduce || !face.animate) { swap(); return; }
-        const out = face.animate([{ transform: 'rotateY(0deg)' }, { transform: 'rotateY(88deg)' }], { duration: 170, easing: 'ease-in' });
-        out.onfinish = () => { swap(); face.animate([{ transform: 'rotateY(-88deg)' }, { transform: 'rotateY(0deg)' }], { duration: 220, easing: 'ease-out' }); };
+        // Transition minimaliste : fondu vers le noir, puis la nouvelle image apparaît
+        const out = face.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 220, easing: 'ease-in', fill: 'forwards' });
+        out.onfinish = () => {
+          swap();
+          const done = () => { face.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 320, easing: 'ease-out' }); out.cancel(); };
+          if (img.complete) done(); else { img.onload = done; img.onerror = done; }
+        };
       };
       setTab('front');
       tabs.forEach(b => b.addEventListener('click', () => go(b.dataset.view)));
