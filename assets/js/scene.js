@@ -1,6 +1,6 @@
 // Scène 3D de l'accueil : logo R2A vectoriel extrudé en or, piste en perspective, poussière dorée.
 import * as THREE from '../vendor/three.module.js';
-import { LOGO_W, LOGO_H, LOGO_SHAPES } from './logo-shape.js';
+import { LOGO_W, LOGO_H, LOGO_SHAPES } from './logo-shape.js?v=20261009b';
 
 const canvas = document.getElementById('heroCanvas');
 const hero = document.getElementById('hero');
