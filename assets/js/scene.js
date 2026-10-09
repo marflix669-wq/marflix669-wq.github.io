@@ -136,7 +136,25 @@ function init() {
     camera.fov = wide ? 45 : 58;
     camera.updateProjectionMatrix();
     if (wide) { logoGroup.position.set(Math.min(3.3, w / h * 1.3), 1.9, 0); logoGroup.scale.setScalar(0.9); }
-    else { logoGroup.position.set(0, 3.55, -1); logoGroup.scale.setScalar(0.62); }
+    else {
+      // Mobile : le logo est centré dans la zone libre entre l'en-tête et le texte,
+      // un peu au-dessus du milieu, avec une marge avant « Performance • Confort • Style ».
+      const copy = hero.querySelector('.hero-copy');
+      const headerH = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--header-h')) || 60;
+      const eb = copy && copy.querySelector('.eyebrow');
+      const copyTop = eb ? eb.getBoundingClientRect().top - hero.getBoundingClientRect().top : h * 0.5;
+      const zone = Math.max(120, copyTop - headerH);
+      const z = -1, dist = camera.position.z - z;
+      const visW = 2 * dist * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.aspect;
+      const sc = 0.5 * visW / 4.4;
+      const screenY = headerH + zone * 0.4;
+      camera.position.set(0, 1.4, 8); camera.lookAt(0, 2.1, 0); camera.updateMatrixWorld();
+      const ndc = new THREE.Vector3(0, 1 - 2 * screenY / h, 0.5).unproject(camera);
+      const dir = ndc.sub(camera.position).normalize();
+      const k = (z - camera.position.z) / dir.z;
+      logoGroup.position.copy(camera.position).addScaledVector(dir, k);
+      logoGroup.scale.setScalar(sc);
+    }
     baseY = logoGroup.position.y;
   }
   new ResizeObserver(resize).observe(hero); resize();

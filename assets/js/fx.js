@@ -43,44 +43,39 @@
   window.R2A_fx = bindFx;
   bindFx();
 
-  // Viewer 3D du maillot (recto / verso, glisser pour tourner)
+  // Viewer 3D du maillot (face / vue d'ensemble ; glisser pour incliner)
   window.R2A_initViewers = function (root) {
     (root || doc).querySelectorAll('[data-viewer]').forEach(v => {
       if (v.dataset.ready) return; v.dataset.ready = '1';
       const stage = v.querySelector('.viewer-stage'), obj = v.querySelector('.viewer-obj');
       const tabs = v.querySelectorAll('[data-view]');
-      let ry = -18, rx = 4, target = null, dragging = false, lastX = 0, lastY = 0, vel = 0, idle = 0;
+      const MAX_Y = 26, MAX_X = 12;
+      let ry = -14, rx = 4, ty = null, tx = null, dragging = false, t = 0;
+      const clamp = (n, m) => Math.max(-m, Math.min(m, n));
       const apply = () => { obj.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`; };
       const setTab = name => tabs.forEach(b => b.classList.toggle('on', b.dataset.view === name));
-      const go = name => {
-        setTab(name);
-        if (name === 'overview') { v.classList.add('overview'); return; }
-        v.classList.remove('overview');
-        const base = Math.round(ry / 360) * 360;
-        target = name === 'front' ? base : base + 180;
-        idle = 0;
-      };
+      const go = name => { setTab(name); v.classList.toggle('overview', name === 'overview'); };
+      setTab('front');
       tabs.forEach(b => b.addEventListener('click', () => go(b.dataset.view)));
-      stage.addEventListener('pointerdown', e => { dragging = true; target = null; lastX = e.clientX; lastY = e.clientY; stage.setPointerCapture(e.pointerId); idle = 0; });
-      stage.addEventListener('pointermove', e => {
-        if (!dragging) return;
-        const dx = e.clientX - lastX, dy = e.clientY - lastY; lastX = e.clientX; lastY = e.clientY;
-        ry += dx * 0.6; vel = dx * 0.6; rx = Math.max(-14, Math.min(14, rx - dy * 0.2));
-        setTab(Math.cos(ry * Math.PI / 180) > 0 ? 'front' : 'back');
-      });
-      const end = () => { dragging = false; };
+      const aim = e => {
+        const r = stage.getBoundingClientRect();
+        ty = clamp(((e.clientX - r.left) / r.width - .5) * 2 * MAX_Y, MAX_Y);
+        tx = clamp((.5 - (e.clientY - r.top) / r.height) * 2 * MAX_X, MAX_X);
+      };
+      stage.addEventListener('pointerdown', e => { dragging = true; stage.setPointerCapture(e.pointerId); aim(e); });
+      stage.addEventListener('pointermove', e => { if (dragging || (fine && !reduce)) aim(e); });
+      const end = () => { dragging = false; if (!fine) { ty = null; tx = null; } };
       stage.addEventListener('pointerup', end); stage.addEventListener('pointercancel', end);
+      stage.addEventListener('pointerleave', () => { ty = null; tx = null; });
       let visible = true;
       new IntersectionObserver(([e]) => visible = e.isIntersecting).observe(stage);
-      (function tick(now) {
+      (function tick() {
         requestAnimationFrame(tick);
         if (!visible || v.classList.contains('overview')) return;
-        if (!dragging) {
-          if (target !== null) { ry += (target - ry) * 0.1; if (Math.abs(target - ry) < 0.2) { ry = target; target = null; } }
-          else if (Math.abs(vel) > 0.05) { ry += vel; vel *= 0.94; }
-          else if (!reduce) { idle += 1; ry += Math.sin(idle / 90) * 0.18; }
-          rx += (4 - rx) * 0.04;
-        }
+        t += 1;
+        const gy = ty !== null ? ty : (reduce ? -14 : -14 + Math.sin(t / 90) * 8);
+        const gx = tx !== null ? tx : 4;
+        ry += (gy - ry) * 0.1; rx += (gx - rx) * 0.1;
         apply();
       })();
       apply();

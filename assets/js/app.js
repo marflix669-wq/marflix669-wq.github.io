@@ -287,7 +287,7 @@
     const others = ['enfant','homme','femme'].filter(c => c !== pageCategory);
     target.innerHTML = pageProducts.map((p, idx) => {
       const g = p.gallery;
-      const front = g[1] || g[0], back = g[2] || g[0];
+      const front = g[1] || g[0];
       return `
       <section class="section--tight">
         <div class="product-layout">
@@ -297,14 +297,12 @@
               <div class="viewer-obj">
                 <div class="viewer-edge"></div>
                 <div class="viewer-face front"><img src="${front}" alt="${p.name} — face" draggable="false"></div>
-                <div class="viewer-face back"><img src="${back}" alt="${p.name} — dos" draggable="false"></div>
               </div>
               <div class="viewer-overview"><img src="${g[0]}" alt="${p.name} — recto verso"></div>
-              <div class="viewer-hint">Glisse pour faire tourner</div>
+              <div class="viewer-hint">Glisse pour incliner</div>
             </div>
             <div class="viewer-tabs">
               <button type="button" data-view="front">Face</button>
-              <button type="button" data-view="back">Dos</button>
               <button type="button" data-view="overview">Vue d’ensemble</button>
             </div>
           </div>
