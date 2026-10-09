@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="fr" class="no-js">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#060606">
+  <meta name="description" content="R2A — Road 2 your Ambition. Maillots de sport, préparation physique et performance.">
+  <meta property="og:title" content="R2A — Road 2 your Ambition">
+  <meta property="og:description" content="R2A — Road 2 your Ambition. Maillots de sport, préparation physique et performance.">
+  <meta property="og:type" content="website">
+  <title>R2A — Road 2 your Ambition</title>
+  <link rel="icon" type="image/svg+xml" href="./assets/images/brand/r2a-logo.svg">
+  <link rel="preload" href="./assets/fonts/big-shoulders-display-latin-900-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="./assets/css/site.css?v=20261009b">
+</head>
+<body>
+<a class="skip" href="#main">Aller au contenu</a>
+<header class="site-header">
+  <div class="container nav">
+    <a class="brand" href="./index.html" aria-label="R2A — accueil"><img src="./assets/images/brand/r2a-logo.svg" alt="R2A"></a>
+    <nav class="nav-links" aria-label="Navigation principale"><a href="./index.html" class="active" aria-current="page">Accueil</a><a href="./maillots/index.html">Maillots</a><a href="./qui-suis-je.html">Qui suis-je</a><a href="./performance.html">Performance</a><a href="./videos.html">Vidéos</a></nav>
+    <div class="nav-actions">
+      <button class="cart-btn" id="cartBtn" type="button" aria-label="Ouvrir le panier"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 7h12l-1 13H7L6 7z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg><span class="lbl">Panier</span> <span id="cartCount">0</span></button>
+      <button class="burger" id="burger" type="button" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</header>
+<main id="main">
+<section class="hero" id="hero">
+  <div class="hero-fallback"></div>
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="container">
+    <div class="hero-copy">
+      <div class="eyebrow">Performance • Confort • Style</div>
+      <h1><span>Ton <span class="gold-text" style="display:inline">ambition</span>.</span><span class="outline">Ton chemin.</span><span>Ta réussite.</span></h1>
+      <p>R2A — Road 2 your Ambition. Performance, préparation et progression.</p>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="qui-suis-je.html">Découvrir R2A <span class="arrow">→</span></a>
+        <a class="btn btn-outline" href="videos.html">Voir les vidéos Instagram</a>
+      </div>
+    </div>
+  </div>
+  <div class="scroll-hint"><i></i>Scroll</div>
+</section>
+
+<section class="section" id="presentation">
+  <div class="container about">
+    <div class="photo-3d reveal">
+      <div class="photo-frame">
+        <img src="assets/images/about/coach.png" alt="Amine Regragui" loading="lazy">
+        <span class="photo-tag">Amine Regragui</span>
+      </div>
+    </div>
+    <div class="reveal" style="--d:.1s">
+      <div class="kicker">Qui suis-je ?</div>
+      <h2 class="section-title">Athlète, coach et préparateur</h2>
+      <p class="section-copy">Athlète de haut niveau depuis 4 ans, diplômé d’un BPJEPS, coach d’athlétisme à l’Athletic Club de Colombes ainsi que coach de football à l’Étoile Sportive Colombienne.</p>
+      <div class="values"><span class="badge">Détermination</span><span class="badge">Discipline</span><span class="badge">Travail</span><span class="badge">Progression</span><span class="badge">Plaisir</span></div>
+      <div style="margin-top:28px"><a class="btn btn-primary" href="qui-suis-je.html">En savoir plus <span class="arrow">→</span></a></div>
+    </div>
+  </div>
+</section>
+
+<section class="section jersey-feature" aria-labelledby="jersey-title">
+  <div class="container jersey-feature-inner reveal">
+    <div class="jersey-feature-copy">
+      <div class="kicker">La collection R2A</div>
+      <h2 class="section-title" id="jersey-title">Porte tes <span class="gold-text">ambitions.</span></h2>
+      <p class="section-copy">Découvre nos maillots R2A : un style affirmé, pensés pour t’accompagner sur le terrain comme au quotidien.</p>
+      <a class="btn btn-primary" href="maillots/index.html">Découvrir nos maillots <span class="arrow">→</span></a>
+    </div>
+    <a class="jersey-feature-image" href="maillots/index.html" aria-label="Découvrir la collection de maillots R2A">
+      <img src="assets/images/products/homme/gallery-01-front-back.png" alt="Maillots de sport R2A, vue de face et de dos" loading="lazy">
+      <span class="jersey-image-label">Collection R2A <span>↗</span></span>
+    </a>
+  </div>
+</section>
+
+<section class="section" style="padding-top:0">
+  <div class="container">
+    <div class="kicker reveal">Explorer</div>
+    <h2 class="section-title reveal">Choisis ton chemin</h2>
+    <div class="grid-4" style="margin-top:34px"><div class="tilt-wrap reveal" style="--d:0.0s"><a class="tilt tile" href="qui-suis-je.html"><span class="idx">01 / 04</span><div><h3>Qui suis-je</h3><p>Athlète, coach et préparateur.</p></div><span class="go">Découvrir <span class="arrow">→</span></span></a></div><div class="tilt-wrap reveal" style="--d:0.1s"><a class="tilt tile" href="performance.html"><span class="idx">02 / 04</span><div><h3>Performance</h3><p>Conçu pour le terrain, la prépa et le mouvement.</p></div><span class="go">Découvrir <span class="arrow">→</span></span></a></div><div class="tilt-wrap reveal" style="--d:0.2s"><a class="tilt tile" href="videos.html"><span class="idx">03 / 04</span><div><h3>Vidéos Instagram</h3><p>Les vidéos du compte, directement sur le site.</p></div><span class="go">Découvrir <span class="arrow">→</span></span></a></div><div class="tilt-wrap reveal" style="--d:0.30000000000000004s"><a class="tilt tile" href="maillots/index.html"><span class="idx">04 / 04</span><div><h3>Maillots</h3><p>Les maillots R2A : enfant, homme et femme.</p></div><span class="go">Découvrir <span class="arrow">→</span></span></a></div></div>
+  </div>
+</section>
+
+<section class="section" style="padding-top:0">
+  <div class="container"><div class="cta-band reveal"><div class="cta-lines"></div>
+    <div class="kicker" style="justify-content:center">Instagram</div>
+    <h2>Rejoins <span class="gold-text">@r2a.coaching</span></h2>
+    <p>Ton ambition, ton chemin, ta réussite.</p>
+    <a class="btn btn-primary" href="https://www.instagram.com/r2a.coaching/" target="_blank" rel="noopener noreferrer">Instagram — @r2a.coaching <span class="arrow">→</span></a>
+  </div></div>
+</section>
+</main>
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <img src="./assets/images/brand/r2a-logo.svg" alt="R2A — Road 2 your Ambition">
+        <div class="footer-note">R2A — Road 2 your Ambition. Performance, préparation et progression.</div>
+      </div>
+      <div class="footer-links"><strong>Explorer</strong><a href="./index.html">Accueil</a><a href="./qui-suis-je.html">Qui suis-je</a><a href="./performance.html">Performance</a><a href="./videos.html">Vidéos Instagram</a></div>
+      <div class="footer-links"><strong>Boutique</strong><a href="./maillots/enfant.html">Maillot Enfant</a><a href="./maillots/homme.html">Maillot Homme</a><a href="./maillots/femme.html">Maillot Femme</a></div>
+      <div class="footer-links"><strong>Légal</strong><a href="./legal/mentions-legales.html">Mentions légales</a><a href="./legal/confidentialite.html">Politique de confidentialité</a><a href="./legal/retractation.html">Rétractation</a><a href="./legal/cgv.html">CGV</a></div>
+    </div>
+    <div class="copyright"><span>© R2A — Ton ambition, ton chemin, ta réussite.</span><a href="https://www.instagram.com/r2a.coaching/" target="_blank" rel="noopener noreferrer">Instagram — @r2a.coaching</a></div>
+  </div>
+</footer>
+
+<div class="cart-overlay" id="cartOverlay"></div>
+<aside class="cart-drawer" id="cartDrawer" aria-label="Panier">
+  <div class="row"><h3>Ton panier</h3><button class="btn btn-small btn-outline" id="closeCart" type="button">Fermer</button></div>
+  <div id="cartItems" class="cart-items"></div>
+  <div class="promo-box"><input id="promoInput" class="input" placeholder="Code promo secret"><button id="applyPromo" class="btn btn-primary btn-small" type="button">Appliquer</button></div>
+  <div id="promoStatus" class="notice-small">Aucun code promo appliqué</div>
+  <div class="list-item">
+    <div class="row"><span>Sous-total</span><strong id="cartSubtotal">0,00 €</strong></div>
+    <div class="row"><span>Réduction</span><strong id="cartDiscount">-0,00 €</strong></div>
+    <div class="row"><span>Total</span><strong id="cartTotal">0,00 €</strong></div>
+  </div>
+  <button class="btn btn-primary" id="checkoutBtn" type="button">Commander via Instagram</button>
+</aside>
+<script src="./assets/js/site-config.js?v=20261009b"></script>
+<script src="./assets/js/data/catalog.js?v=20261009b"></script>
+<script src="./assets/js/app.js?v=20261009b"></script>
+<script src="./assets/js/fx.js?v=20261009b"></script>
+<script type="module" src="./assets/js/scene.js?v=20261009b"></script>
+</body>
+</html>
