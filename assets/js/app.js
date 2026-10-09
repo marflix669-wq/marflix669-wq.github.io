@@ -296,14 +296,14 @@
               <div class="viewer-floor"></div>
               <div class="viewer-obj">
                 <div class="viewer-edge"></div>
-                <div class="viewer-face front"><img src="${front}" alt="${p.name} — face" draggable="false"></div>
+                <div class="viewer-face front"><img data-main src="${g[1] || g[0]}" alt="${p.name}" draggable="false"></div>
               </div>
-              <div class="viewer-overview"><img src="${g[0]}" alt="${p.name} — recto verso"></div>
               <div class="viewer-hint">Glisse pour incliner</div>
             </div>
             <div class="viewer-tabs">
-              <button type="button" data-view="front">Face</button>
-              <button type="button" data-view="overview">Vue d’ensemble</button>
+              <button type="button" data-view="front" data-src="${g[1] || g[0]}" data-alt="${p.name} — face">Face</button>
+              <button type="button" data-view="back" data-src="${g[2] || g[0]}" data-alt="${p.name} — dos">Dos</button>
+              <button type="button" data-view="overview" data-src="${g[0]}" data-alt="${p.name} — vue d’ensemble">Vue d’ensemble</button>
             </div>
           </div>
           <div class="product-panel reveal" style="--d:.12s">

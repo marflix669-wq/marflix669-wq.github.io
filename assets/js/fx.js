@@ -54,7 +54,18 @@
       const clamp = (n, m) => Math.max(-m, Math.min(m, n));
       const apply = () => { obj.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`; };
       const setTab = name => tabs.forEach(b => b.classList.toggle('on', b.dataset.view === name));
-      const go = name => { setTab(name); v.classList.toggle('overview', name === 'overview'); };
+      const face = v.querySelector('.viewer-face'), img = v.querySelector('[data-main]');
+      tabs.forEach(b => { const im = new Image(); im.src = b.dataset.src; });
+      let current = 'front';
+      const go = name => {
+        if (name === current) return;
+        const b = [...tabs].find(x => x.dataset.view === name); if (!b) return;
+        current = name; setTab(name);
+        const swap = () => { img.src = b.dataset.src; img.alt = b.dataset.alt || ''; };
+        if (reduce || !face.animate) { swap(); return; }
+        const out = face.animate([{ transform: 'rotateY(0deg)' }, { transform: 'rotateY(88deg)' }], { duration: 170, easing: 'ease-in' });
+        out.onfinish = () => { swap(); face.animate([{ transform: 'rotateY(-88deg)' }, { transform: 'rotateY(0deg)' }], { duration: 220, easing: 'ease-out' }); };
+      };
       setTab('front');
       tabs.forEach(b => b.addEventListener('click', () => go(b.dataset.view)));
       const aim = e => {
@@ -71,7 +82,7 @@
       new IntersectionObserver(([e]) => visible = e.isIntersecting).observe(stage);
       (function tick() {
         requestAnimationFrame(tick);
-        if (!visible || v.classList.contains('overview')) return;
+        if (!visible) return;
         t += 1;
         const gy = ty !== null ? ty : (reduce ? -14 : -14 + Math.sin(t / 90) * 8);
         const gx = tx !== null ? tx : 4;

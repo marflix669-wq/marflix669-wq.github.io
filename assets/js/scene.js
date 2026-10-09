@@ -147,7 +147,7 @@ function init() {
       const z = -1, dist = camera.position.z - z;
       const visW = 2 * dist * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.aspect;
       const sc = 0.5 * visW / 4.4;
-      const screenY = headerH + zone * 0.4;
+      const screenY = headerH + zone * 0.47;
       camera.position.set(0, 1.4, 8); camera.lookAt(0, 2.1, 0); camera.updateMatrixWorld();
       const ndc = new THREE.Vector3(0, 1 - 2 * screenY / h, 0.5).unproject(camera);
       const dir = ndc.sub(camera.position).normalize();
