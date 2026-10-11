@@ -279,6 +279,11 @@
     });
   }
 
+  function stripeLink(cat){
+    const l = window.R2A_CONFIG && R2A_CONFIG.stripeLinks && R2A_CONFIG.stripeLinks[cat];
+    return /^https:\/\/(buy|checkout)\.stripe\.com\//.test(l || '') ? l : '';
+  }
+
   function renderCategoryPage(){
     const target = document.getElementById('productList');
     if(!target) return;
@@ -317,20 +322,13 @@
                 ? `<div class="stock-alert stock-alert--low">🔥 Plus beaucoup de stock disponible — commande vite.</div>`
                 : ``}
             <div class="sizes">${p.sizes.map(s => `<span class="size-chip">${s}</span>`).join('')}</div>
-            <div class="form-grid">
-              <label>
-                <div>Choisir la taille</div>
-                <select class="selector" data-size-for="${p.id}">${p.sizes.map(s => `<option value="${s}">${s}</option>`).join('')}</select>
-              </label>
-              <label>
-                <div>Quantité</div>
-                <select class="selector" data-qty-for="${p.id}"><option>1</option><option>2</option><option>3</option><option>4</option></select>
-              </label>
-            </div>
-            <div class="notice" style="margin:18px 0">Prix unique : 30 € • Les codes promo secrets peuvent être appliqués dans le panier.</div>
+            <div class="notice" style="margin:18px 0">Prix unique : 30 €. La taille, la quantité, l’adresse de livraison et le code promo se choisissent sur la page de paiement sécurisée Stripe.</div>
             <div class="row-actions">
-              <button class="btn btn-primary" data-add-product="${p.id}" ${p.stock <= 0 ? 'disabled aria-disabled="true"' : ''}>${p.stock <= 0 ? 'Rupture de stock' : 'Ajouter au panier'}</button>
-              <button class="btn btn-dark" onclick="document.getElementById('cartBtn').click()">Voir le panier</button>
+              ${p.stock <= 0
+                ? `<button class="btn btn-primary" disabled aria-disabled="true">Rupture de stock</button>`
+                : (stripeLink(p.category)
+                  ? `<a class="btn btn-primary" href="${stripeLink(p.category)}" rel="noopener">Payer en ligne • ${money(p.price)} <span class="arrow">→</span></a>`
+                  : `<a class="btn btn-primary" href="${(window.R2A_CONFIG && R2A_CONFIG.instagramUrl) || '#'}" target="_blank" rel="noopener noreferrer">Commander via Instagram <span class="arrow">→</span></a>`)}
             </div>
             <div class="other-cats">
               ${others.map(c => `<a class="btn btn-outline btn-small" href="./${c}.html">Maillot ${c}</a>`).join('')}

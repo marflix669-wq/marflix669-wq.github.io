@@ -11,7 +11,7 @@
   <title>Rétractation — R2A</title>
   <link rel="icon" type="image/svg+xml" href="../assets/images/brand/r2a-logo.svg">
   <link rel="preload" href="../assets/fonts/big-shoulders-display-latin-900-normal.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="../assets/css/site.css?v=20261009b">
+  <link rel="stylesheet" href="../assets/css/site.css?v=20261011b">
 </head>
 <body>
 <a class="skip" href="#main">Aller au contenu</a>
@@ -20,7 +20,6 @@
     <a class="brand" href="../index.html" aria-label="R2A — accueil"><img src="../assets/images/brand/r2a-logo.svg" alt="R2A"></a>
     <nav class="nav-links" aria-label="Navigation principale"><a href="../index.html">Accueil</a><a href="../maillots/index.html">Maillots</a><a href="../qui-suis-je.html">Qui suis-je</a><a href="../performance.html">Performance</a><a href="../videos.html">Vidéos</a></nav>
     <div class="nav-actions">
-      <button class="cart-btn" id="cartBtn" type="button" aria-label="Ouvrir le panier"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 7h12l-1 13H7L6 7z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg><span class="lbl">Panier</span> <span id="cartCount">0</span></button>
       <button class="burger" id="burger" type="button" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
     </div>
   </div>
@@ -51,23 +50,11 @@
   </div>
 </footer>
 
-<div class="cart-overlay" id="cartOverlay"></div>
-<aside class="cart-drawer" id="cartDrawer" aria-label="Panier">
-  <div class="row"><h3>Ton panier</h3><button class="btn btn-small btn-outline" id="closeCart" type="button">Fermer</button></div>
-  <div id="cartItems" class="cart-items"></div>
-  <div class="promo-box"><input id="promoInput" class="input" placeholder="Code promo secret"><button id="applyPromo" class="btn btn-primary btn-small" type="button">Appliquer</button></div>
-  <div id="promoStatus" class="notice-small">Aucun code promo appliqué</div>
-  <div class="list-item">
-    <div class="row"><span>Sous-total</span><strong id="cartSubtotal">0,00 €</strong></div>
-    <div class="row"><span>Réduction</span><strong id="cartDiscount">-0,00 €</strong></div>
-    <div class="row"><span>Total</span><strong id="cartTotal">0,00 €</strong></div>
-  </div>
-  <button class="btn btn-primary" id="checkoutBtn" type="button">Commander via Instagram</button>
-</aside>
-<script src="../assets/js/site-config.js?v=20261009b"></script>
-<script src="../assets/js/data/catalog.js?v=20261009b"></script>
-<script src="../assets/js/app.js?v=20261009b"></script>
-<script src="../assets/js/fx.js?v=20261009b"></script>
+
+<script src="../assets/js/site-config.js?v=20261011b"></script>
+<script src="../assets/js/data/catalog.js?v=20261011b"></script>
+<script src="../assets/js/app.js?v=20261011b"></script>
+<script src="../assets/js/fx.js?v=20261011b"></script>
 
 </body>
 </html>

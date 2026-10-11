@@ -542,16 +542,37 @@ body::before{display:none}
 
 .photo-tag{white-space:nowrap;width:max-content}
 
+/* ==========================================================
+   Accueil : petite section « Découvre nos maillots »
+   ========================================================== */
+.shop-teaser{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:clamp(24px,5vw,70px);align-items:center;
+  border:1px solid var(--line);border-radius:calc(var(--radius) + 6px);padding:clamp(30px,5vw,60px);overflow:hidden;position:relative;
+  background:radial-gradient(70% 120% at 100% 100%,rgba(227,191,115,.16),transparent 65%),#0a0a09}
+.shop-teaser .section-title{font-size:clamp(1.8rem,3.2vw,2.6rem)}
+.shop-teaser .hero-cta{margin-top:24px}
+.fan{position:relative;height:clamp(260px,32vw,360px);perspective:1000px}
+.fan-item{position:absolute;top:0;width:36%;aspect-ratio:4/5;border-radius:16px;overflow:hidden;border:1px solid var(--line);
+  box-shadow:0 30px 50px -24px rgba(0,0,0,.95);background:#000;transition:transform .5s var(--ease),border-color .3s,box-shadow .5s}
+.fan-item img{width:100%;height:100%;object-fit:cover}
+.fan-item span{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);padding:5px 14px;border-radius:999px;background:rgba(6,6,6,.75);backdrop-filter:blur(6px);border:1px solid var(--line);font-size:.62rem;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-3)}
+.fan-item.f1{left:2%;top:11%;transform:rotateY(18deg) rotate(-7deg);z-index:1}
+.fan-item.f2{left:32%;top:0;z-index:3;width:38%;transform:translateZ(40px)}
+.fan-item.f3{right:2%;top:11%;transform:rotateY(-18deg) rotate(7deg);z-index:1}
+.fan-item:hover{border-color:var(--gold-2);z-index:4}
+.fan-item.f1:hover{transform:rotateY(8deg) rotate(-4deg) translateY(-10px)}
+.fan-item.f2:hover{transform:translateZ(60px) translateY(-10px)}
+.fan-item.f3:hover{transform:rotateY(-8deg) rotate(4deg) translateY(-10px)}
+@media (max-width:860px){
+  .shop-teaser{grid-template-columns:1fr;text-align:center;gap:30px;padding:34px 20px}
+  .shop-teaser .kicker{justify-content:center}
+  .shop-teaser .section-copy{margin-inline:auto}
+  .fan{height:clamp(220px,62vw,300px);max-width:420px;width:100%;margin-inline:auto}
+  .fan-item span{font-size:.56rem;padding:4px 10px;bottom:7px}
+}
 
-/* ---------- Mise en avant des maillots sur l’accueil ---------- */
-.jersey-feature{padding-top:20px}
-.jersey-feature-inner{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.9fr);gap:clamp(28px,6vw,88px);align-items:center;padding:clamp(22px,4vw,54px);border:1px solid var(--line);border-radius:var(--radius);background:radial-gradient(ellipse at 85% 10%,rgba(227,191,115,.11),transparent 52%),#0b0b0a;overflow:hidden}
-.jersey-feature-copy .section-title{max-width:10ch}
-.jersey-feature-copy .section-copy{margin-bottom:28px}
-.jersey-feature-image{position:relative;display:block;overflow:hidden;border-radius:calc(var(--radius) - 4px);border:1px solid rgba(227,191,115,.25);background:#151513}
-.jersey-feature-image img{display:block;width:100%;aspect-ratio:1.18/1;object-fit:cover;object-position:center 34%;transition:transform .6s ease}
-.jersey-feature-image:hover img{transform:scale(1.04)}
-.jersey-image-label{position:absolute;inset:auto 14px 14px 14px;display:flex;justify-content:space-between;align-items:center;padding:13px 16px;background:rgba(6,6,6,.82);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.14);border-radius:10px;color:var(--text);font-size:.76rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
-.jersey-image-label span{color:var(--gold-2);font-size:1.2rem}
-@media(max-width:860px){.jersey-feature{padding-top:0}.jersey-feature-inner{grid-template-columns:1fr;gap:26px;padding:22px}.jersey-feature-copy .section-title{max-width:14ch}.jersey-feature-image img{aspect-ratio:1.2/1;max-height:390px}.jersey-feature-copy .btn{width:100%}}
-@media(max-width:480px){.jersey-feature-inner{padding:16px}.jersey-feature-image img{aspect-ratio:1/1;max-height:none}.jersey-image-label{inset:auto 10px 10px;padding:11px 12px;font-size:.68rem}}
+/* Accueil bureau : le texte reste dans la partie haute/centrale de l'écran, quelle que soit sa hauteur */
+@media (min-width:861px){
+  .hero{align-items:center}
+  .hero-copy{padding:calc(var(--header-h) + 3vh) 0 7vh}
+  .hero h1{font-size:clamp(2.4rem,min(5.8vw,9.5vh),4.9rem)}
+}

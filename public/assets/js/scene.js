@@ -1,6 +1,6 @@
 // Scène 3D de l'accueil : logo R2A vectoriel extrudé en or, piste en perspective, poussière dorée.
 import * as THREE from '../vendor/three.module.js';
-import { LOGO_W, LOGO_H, LOGO_SHAPES } from './logo-shape.js?v=20261009b';
+import { LOGO_W, LOGO_H, LOGO_SHAPES } from './logo-shape.js?v=20261011a';
 
 const canvas = document.getElementById('heroCanvas');
 const hero = document.getElementById('hero');
@@ -135,7 +135,20 @@ function init() {
     const wide = w / h > 1.15;
     camera.fov = wide ? 45 : 58;
     camera.updateProjectionMatrix();
-    if (wide) { logoGroup.position.set(Math.min(3.3, w / h * 1.3), 1.9, 0); logoGroup.scale.setScalar(0.9); }
+    if (wide) {
+      // Bureau : taille et position du logo dépendent de la largeur ET de la hauteur de l'écran
+      const dist = 8, visH = 2 * dist * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)), visW = visH * camera.aspect;
+      const sc = THREE.MathUtils.clamp(Math.min(0.42 * visW / 7.2, 0.46 * visH / 3.4), 0.3, 0.9);
+      const pxPerUnit = w / visW, ringHalfPx = 3.6 * sc * pxPerUnit;
+      const headerH = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--header-h')) || 68;
+      const sx = Math.min(w * 0.74, w - ringHalfPx * 1.3 - 24);
+      const sy = headerH + (h - headerH) * 0.46;
+      camera.position.set(0, 1.4, 8); camera.lookAt(0, 2.1, 0); camera.updateMatrixWorld();
+      const dir = new THREE.Vector3(sx / w * 2 - 1, 1 - 2 * sy / h, 0.5).unproject(camera).sub(camera.position).normalize();
+      const k = (0 - camera.position.z) / dir.z;
+      logoGroup.position.copy(camera.position).addScaledVector(dir, k);
+      logoGroup.scale.setScalar(sc);
+    }
     else {
       // Mobile : le logo est centré dans la zone libre entre l'en-tête et le texte,
       // un peu au-dessus du milieu, avec une marge avant « Performance • Confort • Style ».
