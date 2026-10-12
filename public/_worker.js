@@ -18,10 +18,19 @@ async function checkout(request, env) {
   if (!env.STRIPE_SECRET_KEY || !env.STRIPE_PUBLISHABLE_KEY) return json({ error: 'not_configured' }, 503);
   let b;
   try { b = await request.json(); } catch (_) { return json({ error: 'bad_request' }, 400); }
-  const p = PRODUCTS[String(b && b.category)];
-  const size = String(b && b.size || '');
-  const qty = Math.floor(Number(b && b.qty));
-  if (!p || !p.sizes.includes(size) || !(qty >= 1 && qty <= MAX_QTY)) return json({ error: 'bad_request' }, 400);
+  // Panier : b.items = [{category,size,qty}] (ou ancien format à un seul article)
+  const raw = Array.isArray(b && b.items) ? b.items : [b];
+  if (!raw.length || raw.length > 8) return json({ error: 'bad_request' }, 400);
+  const lines = [];
+  let total = 0;
+  for (const it of raw) {
+    const p = PRODUCTS[String(it && it.category)];
+    const size = String(it && it.size || '');
+    const qty = Math.floor(Number(it && it.qty));
+    if (!p || !p.sizes.includes(size) || !(qty >= 1 && qty <= MAX_QTY)) return json({ error: 'bad_request' }, 400);
+    total += qty; lines.push({ cat: String(it.category), p, size, qty });
+  }
+  if (total > 20) return json({ error: 'bad_request' }, 400);
 
   const origin = new URL(request.url).origin;
   const build = (uiMode) => {
@@ -30,16 +39,16 @@ async function checkout(request, env) {
     f.set('ui_mode', uiMode);
     f.set('locale', 'fr');
     f.set('return_url', origin + '/merci.html?session_id={CHECKOUT_SESSION_ID}');
-    f.set('line_items[0][quantity]', String(qty));
-    f.set('line_items[0][price_data][currency]', 'eur');
-    f.set('line_items[0][price_data][unit_amount]', String(p.amount));
-    f.set('line_items[0][price_data][product_data][name]', p.name + ' — Taille ' + size);
+    lines.forEach((l, i) => {
+      f.set(`line_items[${i}][quantity]`, String(l.qty));
+      f.set(`line_items[${i}][price_data][currency]`, 'eur');
+      f.set(`line_items[${i}][price_data][unit_amount]`, String(l.p.amount));
+      f.set(`line_items[${i}][price_data][product_data][name]`, l.p.name + ' — Taille ' + l.size);
+    });
     f.set('shipping_address_collection[allowed_countries][0]', 'FR');
     f.set('phone_number_collection[enabled]', 'true');
     f.set('allow_promotion_codes', 'true');
-    f.set('metadata[category]', String(b.category));
-    f.set('metadata[size]', size);
-    f.set('metadata[quantity]', String(qty));
+    f.set('metadata[commande]', lines.map(l => `${l.cat} ${l.size} x${l.qty}`).join(' | '));
     return f;
   };
   const create = async (uiMode, version) => {

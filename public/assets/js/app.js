@@ -1,7 +1,6 @@
 (function(){
   const DATA = window.R2A_DATA;
         const cart = DATA.load(DATA.STORAGE_KEYS.cart, []);
-  let activePromo = null;
 
   function persistCart(){ DATA.save(DATA.STORAGE_KEYS.cart, cart); }
   function money(v){ return `${Number(v).toFixed(2).replace('.',',')} €`; }
@@ -19,123 +18,67 @@
   }
   function getProducts(){ return DATA.load(DATA.STORAGE_KEYS.products, DATA.DEFAULT_PRODUCTS).filter(p => p.visible !== false).map(normalizeProduct); }
 
+  function findProduct(id){ return getProducts().find(x => x.id === id); }
   function addToCart(productId, size, qty){
-    const p = getProducts().find(x => x.id === productId);
-    if(!p) return;
-
-    if(p.stock <= 0){
-      alert('Ce produit est actuellement en rupture de stock.');
-      return;
-    }
-
-    const alreadyInCart = cart
-      .filter(i => i.productId === productId)
-      .reduce((sum, i) => sum + Number(i.qty || 0), 0);
-
+    const p = findProduct(productId);
+    if(!p) return 'Produit introuvable.';
+    if(p.stock <= 0) return 'Ce produit est actuellement en rupture de stock.';
+    const inCart = cart.filter(i => i.productId === productId).reduce((n, i) => n + Number(i.qty || 0), 0);
     const requested = Math.max(1, Number(qty || 1));
-    if(alreadyInCart + requested > p.stock){
-      const remaining = Math.max(0, p.stock - alreadyInCart);
-      alert(remaining > 0
-        ? `Il ne reste que ${remaining} article${remaining > 1 ? 's' : ''} disponible${remaining > 1 ? 's' : ''} pour ce produit.`
-        : 'Tu as déjà ajouté tout le stock disponible dans ton panier.');
-      return;
+    if(inCart + requested > p.stock){
+      const left = Math.max(0, p.stock - inCart);
+      return left > 0 ? `Il ne reste que ${left} article${left > 1 ? 's' : ''} disponible${left > 1 ? 's' : ''}.` : 'Tout le stock disponible est déjà dans ton panier.';
     }
-
     const existing = cart.find(i => i.productId === productId && i.size === size);
-    if(existing) existing.qty += requested; else cart.push({productId, size, qty:requested});
-    persistCart();
-    renderCart();
-    openCart();
+    if(existing) existing.qty = Math.min(10, existing.qty + requested); else cart.push({productId, size, qty:Math.min(10, requested)});
+    persistCart(); renderCart(); openCart();
+    return '';
   }
-
-  function removeFromCart(index){
-    cart.splice(index,1);
-    persistCart();
-    renderCart();
+  function removeFromCart(index){ cart.splice(index,1); persistCart(); renderCart(); }
+  function changeQty(index, d){
+    const it = cart[index]; if(!it) return;
+    const p = findProduct(it.productId);
+    const others = cart.filter((x, i) => i !== index && x.productId === it.productId).reduce((n, x) => n + x.qty, 0);
+    const max = Math.min(10, p ? p.stock - others : 10);
+    it.qty = Math.max(1, Math.min(max, it.qty + d));
+    persistCart(); renderCart();
   }
-
-
   function cartTotals(){
     let subtotal = 0;
-    cart.forEach(item => {
-      const p = getProducts().find(x => x.id === item.productId);
-      if(p) subtotal += p.price * item.qty;
-    });
-    let discount = 0;
-    if(activePromo){
-      discount = activePromo.type === 'percent' ? subtotal * (activePromo.value/100) : activePromo.value;
-      if(discount > subtotal) discount = subtotal;
-    }
-    return {subtotal, discount, total: subtotal - discount, promo:activePromo};
+    cart.forEach(item => { const p = findProduct(item.productId); if(p) subtotal += p.price * item.qty; });
+    return {subtotal, total: subtotal};
   }
-
-  async function applyPromo(){
-    const input = document.getElementById('promoInput');
-    const status = document.getElementById('promoStatus');
-    const code = (input ? input.value : '').trim();
-    if(!code){
-      activePromo = null;
-      if(status) status.textContent = 'Aucun code promo appliqué';
-      renderCart();
-      return;
-    }
-    try{
-      const response = await fetch((window.R2A_CONFIG && R2A_CONFIG.promoEndpoint) || '/api/promo', {
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({code})
-      });
-      const result = await response.json();
-      if(!response.ok || !result.valid) throw new Error('invalid');
-      activePromo = result.promo;
-      if(status) status.textContent = `Code appliqué : ${activePromo.code}`;
-    }catch(e){
-      activePromo = null;
-      if(status) status.textContent = 'Code invalide ou validation indisponible.';
-    }
-    renderCart();
-  }
-
   function renderCart(){
     const wrap = document.getElementById('cartItems');
     const badge = document.getElementById('cartCount');
     if(!wrap || !badge) return;
-    badge.textContent = cart.reduce((n,i)=>n+i.qty,0);
+    for(let i = cart.length - 1; i >= 0; i--) if(!findProduct(cart[i].productId)) cart.splice(i, 1);
+    const count = cart.reduce((n,i)=>n+i.qty,0);
+    badge.textContent = count; badge.hidden = count === 0;
     if(cart.length === 0){
-      wrap.innerHTML = '<div class="reel-empty">Ton panier est vide.</div>';
+      wrap.innerHTML = '<div class="cart-empty">Ton panier est vide.<br><a class="btn btn-outline btn-small" href="' + (document.body.dataset.category ? './index.html' : (location.pathname.indexOf('/maillots/') > -1 ? './index.html' : './maillots/index.html')) + '">Voir les maillots</a></div>';
     }else{
       wrap.innerHTML = cart.map((item, index) => {
-        const p = getProducts().find(x => x.id === item.productId);
-        if(!p) return '';
-        return `<div class="cart-item"><div class="row"><strong>${p.name}</strong><button class="btn btn-small btn-outline" data-remove-cart="${index}">Supprimer</button></div><div class="muted">Taille : ${item.size} • Qté : ${item.qty}</div><div class="row" style="margin-top:8px"><span class="muted">${money(p.price)} x ${item.qty}</span><strong>${money(p.price*item.qty)}</strong></div></div>`;
+        const p = findProduct(item.productId);
+        return `<div class="cart-item"><img class="cart-thumb" src="${p.gallery[1] || p.gallery[0]}" alt=""><div class="cart-info"><strong>${p.name}</strong><div class="muted">Taille : ${item.size}</div>
+          <div class="cart-line"><div class="qty qty--sm"><button type="button" data-cq="-1" data-i="${index}" aria-label="Moins">−</button><span>${item.qty}</span><button type="button" data-cq="1" data-i="${index}" aria-label="Plus">+</button></div><strong>${money(p.price*item.qty)}</strong></div></div>
+          <button class="cart-remove" type="button" data-remove-cart="${index}" aria-label="Retirer du panier">✕</button></div>`;
       }).join('');
     }
-    const totals = cartTotals();
-    const subtotal = document.getElementById('cartSubtotal');
-    const discount = document.getElementById('cartDiscount');
     const total = document.getElementById('cartTotal');
-    const promoStatus = document.getElementById('promoStatus');
-    if(subtotal) subtotal.textContent = money(totals.subtotal);
-    if(discount) discount.textContent = '-' + money(totals.discount);
-    if(total) total.textContent = money(totals.total);
-    if(promoStatus){
-      if(totals.promo) promoStatus.textContent = `Code appliqué : ${totals.promo.code}`;
-    }
+    if(total) total.textContent = money(cartTotals().total);
+    const pay = document.getElementById('checkoutBtn'); if(pay) pay.disabled = cart.length === 0;
     wrap.querySelectorAll('[data-remove-cart]').forEach(btn => btn.onclick = () => removeFromCart(Number(btn.dataset.removeCart)));
+    wrap.querySelectorAll('[data-cq]').forEach(btn => btn.onclick = () => changeQty(Number(btn.dataset.i), Number(btn.dataset.cq)));
   }
-
-  function openCart(){
-    const d = document.getElementById('cartDrawer');
-    const o = document.getElementById('cartOverlay');
-    if(d) d.classList.add('open');
-    if(o) o.classList.add('open');
+  function setCart(open){
+    const d = document.getElementById('cartDrawer'), o = document.getElementById('cartOverlay');
+    if(d){ d.classList.toggle('open', open); d.setAttribute('aria-hidden', open ? 'false' : 'true'); }
+    if(o) o.classList.toggle('open', open);
+    document.documentElement.classList.toggle('cart-open', open);
   }
-  function closeCart(){
-    const d = document.getElementById('cartDrawer');
-    const o = document.getElementById('cartOverlay');
-    if(d) d.classList.remove('open');
-    if(o) o.classList.remove('open');
-  }
+  function openCart(){ setCart(true); }
+  function closeCart(){ setCart(false); }
 
   function bindCartButtons(root){
     root.querySelectorAll('[data-add-product]').forEach(btn => {
@@ -286,11 +229,12 @@
 
   function loadCheckout(){
     if(window.R2A_openCheckout) return Promise.resolve();
-    return new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = '/assets/js/checkout.js?v=20261011c'; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); });
+    return new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = '/assets/js/checkout.js?v=20261012a'; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); });
   }
   function bindBuy(root){
     root.querySelectorAll('.product-panel').forEach(panel => {
       const pay = panel.querySelector('[data-pay]'); if(!pay) return;
+      const add = panel.querySelector('[data-add]');
       let size = '', qty = 1;
       const err = panel.querySelector('[data-buy-error]'), qEl = panel.querySelector('[data-qty]');
       panel.querySelectorAll('.size-pick').forEach(b => b.addEventListener('click', () => {
@@ -300,10 +244,15 @@
       panel.querySelectorAll('[data-q]').forEach(b => b.addEventListener('click', () => {
         qty = Math.max(1, Math.min(10, qty + Number(b.dataset.q))); qEl.textContent = qty;
       }));
+      if(add) add.addEventListener('click', () => {
+        if(!size){ err.textContent = 'Choisis ta taille avant d’ajouter au panier.'; err.hidden = false; return; }
+        const msg = addToCart(add.dataset.id, size, qty);
+        if(msg){ err.textContent = msg; err.hidden = false; } else { err.hidden = true; }
+      });
       pay.addEventListener('click', async () => {
-        if(!size){ err.hidden = false; return; }
+        if(!size){ err.textContent = 'Choisis ta taille avant de payer.'; err.hidden = false; return; }
         try { await loadCheckout(); } catch(_) { location.href = stripeLink(pay.dataset.cat) || ((window.R2A_CONFIG && R2A_CONFIG.instagramUrl) || '#'); return; }
-        window.R2A_openCheckout({ category: pay.dataset.cat, name: pay.dataset.name, size, qty, fallbackLink: stripeLink(pay.dataset.cat) });
+        window.R2A_openCheckout({ items:[{ category: pay.dataset.cat, name: pay.dataset.name, size, qty }], fallbackLink: stripeLink(pay.dataset.cat) });
       });
     });
   }
@@ -349,12 +298,12 @@
             <div class="sizes" data-sizes role="radiogroup" aria-label="Taille">${p.sizes.map(s => `<button type="button" class="size-chip size-pick" role="radio" aria-checked="false" data-size="${s}">${s}</button>`).join('')}</div>
             <div class="buy-label">Quantité</div>
             <div class="qty" data-qty-box><button type="button" data-q="-1" aria-label="Moins">−</button><span data-qty>1</span><button type="button" data-q="1" aria-label="Plus">+</button></div>
-            <div class="buy-error" data-buy-error role="alert" hidden>Choisis ta taille avant de payer.</div>
+            <div class="buy-error" data-buy-error role="alert" hidden>Choisis ta taille.</div>
             <div class="notice" style="margin:18px 0">Prix unique : 30 €. L’adresse de livraison et le code promo se saisissent dans le paiement sécurisé Stripe.</div>
             <div class="row-actions">
               ${p.stock <= 0
                 ? `<button class="btn btn-primary" disabled aria-disabled="true">Rupture de stock</button>`
-                : `<button type="button" class="btn btn-primary" data-pay data-cat="${p.category}" data-name="${p.name}">Payer en ligne <span class="arrow">→</span></button>`}
+                : `<button type="button" class="btn btn-primary" data-add data-id="${p.id}">Ajouter au panier <span class="arrow">→</span></button><button type="button" class="btn btn-outline" data-pay data-cat="${p.category}" data-name="${p.name}">Payer maintenant</button>`}
             </div>
             <div class="other-cats">
               ${others.map(c => `<a class="btn btn-outline btn-small" href="./${c}.html">Maillot ${c}</a>`).join('')}
@@ -370,47 +319,21 @@
     if(window.R2A_fx) window.R2A_fx(target);
   }
 
+  async function checkoutCart(){
+    if(!cart.length) return;
+    const items = cart.map(i => { const p = findProduct(i.productId); return p ? {category:p.category, name:p.name, size:i.size, qty:i.qty} : null; }).filter(Boolean);
+    closeCart();
+    const single = items.length === 1 ? stripeLink(items[0].category) : '';
+    try { await loadCheckout(); } catch(_) { location.href = single || ((window.R2A_CONFIG && R2A_CONFIG.instagramUrl) || '#'); return; }
+    window.R2A_openCheckout({ items, fallbackLink: single });
+  }
   function bindGeneral(){
-    const cartBtn = document.getElementById('cartBtn');
-    const closeBtn = document.getElementById('closeCart');
-    const overlay = document.getElementById('cartOverlay');
-    const promoApply = document.getElementById('applyPromo');
-    const checkout = document.getElementById('checkoutBtn');
+    const cartBtn = document.getElementById('cartBtn'), closeBtn = document.getElementById('closeCart'), overlay = document.getElementById('cartOverlay'), checkout = document.getElementById('checkoutBtn');
     if(cartBtn) cartBtn.onclick = openCart;
     if(closeBtn) closeBtn.onclick = closeCart;
     if(overlay) overlay.onclick = closeCart;
-    if(promoApply) promoApply.onclick = applyPromo;
-    if(checkout) checkout.onclick = function(){
-      if(!cart.length){ alert('Ton panier est vide.'); return; }
-      const totals = cartTotals();
-      const lines = cart.map(item => {
-        const p = getProducts().find(x => x.id === item.productId);
-        return p ? `• ${p.name} / ${item.size} / x${item.qty}` : '';
-      }).filter(Boolean);
-      const message = [
-        'Bonjour, je souhaite commander :',
-        ...lines,
-        '',
-        `Sous-total : ${money(totals.subtotal)}`,
-        `Réduction : -${money(totals.discount)}`,
-        `Total : ${money(totals.total)}`,
-        totals.promo ? `Code promo : ${totals.promo.code}` : '',
-        '',
-        'Compte : @r2a.coaching'
-      ].filter(Boolean).join('\n');
-      navigator.clipboard && navigator.clipboard.writeText(message).catch(()=>{});
-      alert('Le récapitulatif de commande a été copié. La page Instagram va maintenant s’ouvrir.');
-      window.open((window.R2A_CONFIG && R2A_CONFIG.instagramUrl) || 'https://www.instagram.com/r2a.coaching/', '_blank');
-    };
-
-    document.querySelectorAll('[data-add-product]').forEach(btn => btn.onclick = function(){
-      const id = btn.dataset.addProduct;
-      const sizeSel = document.querySelector(`[data-size-for="${id}"]`);
-      const qtySel = document.querySelector(`[data-qty-for="${id}"]`);
-      const size = sizeSel ? sizeSel.value : 'Unique';
-      const qty = qtySel ? Number(qtySel.value || 1) : 1;
-      addToCart(id, size, qty);
-    });
+    if(checkout) checkout.onclick = checkoutCart;
+    document.addEventListener('keydown', e => { if(e.key === 'Escape') closeCart(); });
     renderCart();
   }
 

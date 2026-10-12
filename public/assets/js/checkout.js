@@ -17,11 +17,13 @@
 
   window.R2A_openCheckout = function (o) {
     let embedded = null;
+    const items = o.items || [{ category: o.category, name: o.name, size: o.size, qty: o.qty }];
+    const label = items.length === 1 ? `${items[0].name} — ${items[0].size} × ${items[0].qty}` : `Panier — ${items.reduce((n, i) => n + i.qty, 0)} articles`;
     const modal = el(`<div class="co-modal" role="dialog" aria-modal="true" aria-label="Paiement sécurisé">
       <div class="co-backdrop" data-close></div>
       <div class="co-panel">
         <button class="co-close" type="button" data-close aria-label="Fermer">✕</button>
-        <div class="co-head"><div class="kicker">Paiement sécurisé</div><strong>${o.name} — ${o.size} × ${o.qty}</strong></div>
+        <div class="co-head"><div class="kicker">Paiement sécurisé</div><strong>${label}</strong></div>
         <div class="co-body"><div class="co-loading">Chargement du paiement…</div><div id="r2a-checkout-mount"></div></div>
       </div></div>`);
     document.body.appendChild(modal);
@@ -46,7 +48,7 @@
       try {
         const r = await fetch(cfg().checkoutEndpoint || '/api/checkout', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ category: o.category, size: o.size, qty: o.qty })
+          body: JSON.stringify({ items: items.map(i => ({ category: i.category, size: i.size, qty: i.qty })) })
         });
         const d = await r.json();
         if (!r.ok || !d.clientSecret) throw new Error('api');

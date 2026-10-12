@@ -4,6 +4,7 @@
   if(!id){ T.textContent = 'Merci !'; X.textContent = 'Retrouve-nous sur Instagram pour toute question.'; return; }
   fetch('/api/session-status?session_id=' + encodeURIComponent(id)).then(r => r.json()).then(d => {
     if(d.status === 'complete' && d.payment_status === 'paid'){
+      try { localStorage.removeItem('r2a_cart'); } catch(_) {}
       T.textContent = 'Merci pour ta commande !';
       X.textContent = 'Paiement confirmé.' + (d.email ? ' Un reçu a été envoyé à ' + d.email + '.' : '') + ' On te contacte pour la livraison.';
     } else if(d.status === 'open'){
