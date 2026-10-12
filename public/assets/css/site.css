@@ -576,3 +576,23 @@ body::before{display:none}
   .hero-copy{padding:calc(var(--header-h) + 3vh) 0 7vh}
   .hero h1{font-size:clamp(2.4rem,min(5.8vw,9.5vh),4.9rem)}
 }
+
+/* ===== Paiement intégré ===== */
+.buy-label{margin:20px 0 8px;font-size:.7rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--muted,#9a968a)}
+.size-pick{cursor:pointer;font:inherit;color:inherit;background:transparent;transition:background .25s,border-color .25s,color .25s}
+.size-pick:hover{border-color:var(--gold-2)}
+.size-pick.on{background:var(--gold-2);border-color:var(--gold-2);color:#120d03;font-weight:800}
+.qty{display:inline-flex;align-items:center;border:1px solid rgba(244,242,234,.22);border-radius:999px;overflow:hidden}
+.qty button{width:44px;height:44px;background:transparent;border:0;color:var(--text);font-size:1.2rem;cursor:pointer}
+.qty button:hover{background:rgba(227,191,115,.12)}
+.qty span{min-width:40px;text-align:center;font-weight:800}
+.buy-error{margin-top:14px;color:#ff9b8a;font-size:.88rem}
+.co-open{overflow:hidden}
+.co-modal{position:fixed;inset:0;z-index:500;display:grid;place-items:center;padding:16px}
+.co-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.78);backdrop-filter:blur(6px)}
+.co-panel{position:relative;width:min(560px,100%);max-height:calc(100dvh - 32px);overflow:auto;background:#fff;color:#111;border-radius:18px;box-shadow:0 30px 80px -20px #000}
+.co-head{padding:20px 56px 14px 22px;background:#0b0b0b;color:var(--text);border-radius:18px 18px 0 0;display:grid;gap:4px}
+.co-head strong{font-size:.95rem}
+.co-close{position:absolute;top:12px;right:12px;width:36px;height:36px;border-radius:50%;border:1px solid rgba(255,255,255,.25);background:transparent;color:#fff;cursor:pointer;z-index:2}
+.co-body{padding:6px}
+.co-loading{padding:40px 20px;text-align:center;color:#444;display:grid;gap:18px;justify-items:center}

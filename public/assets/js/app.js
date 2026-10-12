@@ -284,6 +284,30 @@
     return /^https:\/\/(buy|checkout)\.stripe\.com\//.test(l || '') ? l : '';
   }
 
+  function loadCheckout(){
+    if(window.R2A_openCheckout) return Promise.resolve();
+    return new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = '/assets/js/checkout.js?v=20261011c'; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); });
+  }
+  function bindBuy(root){
+    root.querySelectorAll('.product-panel').forEach(panel => {
+      const pay = panel.querySelector('[data-pay]'); if(!pay) return;
+      let size = '', qty = 1;
+      const err = panel.querySelector('[data-buy-error]'), qEl = panel.querySelector('[data-qty]');
+      panel.querySelectorAll('.size-pick').forEach(b => b.addEventListener('click', () => {
+        size = b.dataset.size; err.hidden = true;
+        panel.querySelectorAll('.size-pick').forEach(x => { const on = x === b; x.classList.toggle('on', on); x.setAttribute('aria-checked', on ? 'true' : 'false'); });
+      }));
+      panel.querySelectorAll('[data-q]').forEach(b => b.addEventListener('click', () => {
+        qty = Math.max(1, Math.min(10, qty + Number(b.dataset.q))); qEl.textContent = qty;
+      }));
+      pay.addEventListener('click', async () => {
+        if(!size){ err.hidden = false; return; }
+        try { await loadCheckout(); } catch(_) { location.href = stripeLink(pay.dataset.cat) || ((window.R2A_CONFIG && R2A_CONFIG.instagramUrl) || '#'); return; }
+        window.R2A_openCheckout({ category: pay.dataset.cat, name: pay.dataset.name, size, qty, fallbackLink: stripeLink(pay.dataset.cat) });
+      });
+    });
+  }
+
   function renderCategoryPage(){
     const target = document.getElementById('productList');
     if(!target) return;
@@ -321,14 +345,16 @@
               : p.stock <= 5
                 ? `<div class="stock-alert stock-alert--low">🔥 Plus beaucoup de stock disponible — commande vite.</div>`
                 : ``}
-            <div class="sizes">${p.sizes.map(s => `<span class="size-chip">${s}</span>`).join('')}</div>
-            <div class="notice" style="margin:18px 0">Prix unique : 30 €. La taille, la quantité, l’adresse de livraison et le code promo se choisissent sur la page de paiement sécurisée Stripe.</div>
+            <div class="buy-label">Taille</div>
+            <div class="sizes" data-sizes role="radiogroup" aria-label="Taille">${p.sizes.map(s => `<button type="button" class="size-chip size-pick" role="radio" aria-checked="false" data-size="${s}">${s}</button>`).join('')}</div>
+            <div class="buy-label">Quantité</div>
+            <div class="qty" data-qty-box><button type="button" data-q="-1" aria-label="Moins">−</button><span data-qty>1</span><button type="button" data-q="1" aria-label="Plus">+</button></div>
+            <div class="buy-error" data-buy-error role="alert" hidden>Choisis ta taille avant de payer.</div>
+            <div class="notice" style="margin:18px 0">Prix unique : 30 €. L’adresse de livraison et le code promo se saisissent dans le paiement sécurisé Stripe.</div>
             <div class="row-actions">
               ${p.stock <= 0
                 ? `<button class="btn btn-primary" disabled aria-disabled="true">Rupture de stock</button>`
-                : (stripeLink(p.category)
-                  ? `<a class="btn btn-primary" href="${stripeLink(p.category)}" rel="noopener">Payer en ligne • ${money(p.price)} <span class="arrow">→</span></a>`
-                  : `<a class="btn btn-primary" href="${(window.R2A_CONFIG && R2A_CONFIG.instagramUrl) || '#'}" target="_blank" rel="noopener noreferrer">Commander via Instagram <span class="arrow">→</span></a>`)}
+                : `<button type="button" class="btn btn-primary" data-pay data-cat="${p.category}" data-name="${p.name}">Payer en ligne <span class="arrow">→</span></button>`}
             </div>
             <div class="other-cats">
               ${others.map(c => `<a class="btn btn-outline btn-small" href="./${c}.html">Maillot ${c}</a>`).join('')}
@@ -338,7 +364,7 @@
       </section>`;
     }).join('') || '<div class="reel-empty">Aucun produit pour cette catégorie.</div>';
 
-    bindCartButtons(target);
+    bindBuy(target);
     if(window.R2A_initViewers) window.R2A_initViewers(target);
     // les éléments injectés après coup doivent aussi apparaître
     if(window.R2A_fx) window.R2A_fx(target);

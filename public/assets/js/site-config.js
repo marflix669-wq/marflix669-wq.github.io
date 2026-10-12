@@ -10,6 +10,8 @@
       homme: 'https://buy.stripe.com/test_4gM5kE5rB7EkfWEbyU4wM01',
       femme: 'https://buy.stripe.com/test_28EdRa2fpf6M6m4auQ4wM00'
     },
+    // Paiement intégré au site (fonction /api/checkout). Les liens ci-dessus servent de secours.
+    checkoutEndpoint: '/api/checkout',
     currency: 'EUR',
     locale: 'fr-FR',
     promoEndpoint: '/api/promo',
