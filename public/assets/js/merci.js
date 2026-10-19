@@ -6,7 +6,7 @@
     if(d.status === 'complete' && d.payment_status === 'paid'){
       try { localStorage.removeItem('r2a_cart'); } catch(_) {}
       T.textContent = 'Merci pour ta commande !';
-      X.textContent = 'Paiement confirmé.' + (d.email ? ' Un reçu a été envoyé à ' + d.email + '.' : '') + ' On te contacte pour la livraison.';
+      X.textContent = 'Paiement confirmé.' + (d.email ? ' Un e-mail de confirmation est envoyé à ' + d.email + '.' : '') + ' On te contacte pour la livraison.';
     } else if(d.status === 'open'){
       T.textContent = 'Paiement non terminé'; X.textContent = 'Ton paiement n’a pas abouti. Tu peux réessayer depuis la page du maillot.';
     } else { T.textContent = 'Merci !'; X.textContent = 'Nous vérifions ton paiement. Contacte-nous sur Instagram en cas de doute.'; }

@@ -4,11 +4,11 @@
     instagramHandle: '@r2a.coaching',
     lowStockThreshold: 5,
     // Liens de paiement Stripe (un par catégorie). Collez ici les liens https://buy.stripe.com/...
-    // Tant qu'un lien est vide, le bouton renvoie vers Instagram pour commander.
+    // Secours uniquement (si le paiement intégré ne répond pas). Vide = Instagram. Mettre des liens buy.stripe.com/… de PRODUCTION (pas test_).
     stripeLinks: {
-      enfant: 'https://buy.stripe.com/test_8x2fZicU34s8fWEeL64wM02',
-      homme: 'https://buy.stripe.com/test_4gM5kE5rB7EkfWEbyU4wM01',
-      femme: 'https://buy.stripe.com/test_28EdRa2fpf6M6m4auQ4wM00'
+      enfant: '',
+      homme: '',
+      femme: ''
     },
     // Paiement intégré au site (fonction /api/checkout). Les liens ci-dessus servent de secours.
     checkoutEndpoint: '/api/checkout',
