@@ -168,7 +168,11 @@ export default {
     if (pathname === '/api/checkout') return request.method === 'POST' ? checkout(request, env) : json({ error: 'method_not_allowed' }, 405);
     if (pathname === '/api/session-status') return request.method === 'GET' ? sessionStatus(request, env) : jsonS({ error: 'method_not_allowed' }, 405);
     if (pathname === '/api/stripe-webhook') return request.method === 'POST' ? stripeWebhook(request, env) : json({ error: 'method_not_allowed' }, 405);
-    if (pathname === '/api/health') return json({ ok: true });
+    if (pathname === '/api/health') {
+      // Diagnostic sans danger : indique seulement le MODE des clés (jamais leur valeur).
+      const mode = (k) => !k ? 'absente' : /^(sk|rk|pk)_live_/.test(k) ? 'PRODUCTION' : /^(sk|rk|pk)_test_/.test(k) ? 'TEST' : 'inconnue';
+      return json({ ok: true, cle_secrete: mode(env.STRIPE_SECRET_KEY), cle_publiable: mode(env.STRIPE_PUBLISHABLE_KEY) });
+    }
     if (pathname.startsWith('/api/')) return json({ error: 'not_found' }, 404);
     return env.ASSETS.fetch(request);
   }
