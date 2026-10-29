@@ -12,6 +12,8 @@
     },
     // Paiement intégré au site (fonction /api/checkout). Les liens ci-dessus servent de secours.
     checkoutEndpoint: '/api/checkout',
+    // Livraison Mondial Relay (affichage ; le montant réellement facturé est calculé par le serveur)
+    shipping: { fee: 4.9, freeFrom: 2 },
     currency: 'EUR',
     locale: 'fr-FR',
     promoEndpoint: '/api/promo',

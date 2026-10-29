@@ -628,3 +628,11 @@ body::before{display:none}
   .cart-btn{padding:9px 12px}
   .cart-drawer{width:100vw}
 }
+
+/* ---------- Livraison ---------- */
+.ship-note{display:inline-flex;align-items:center;gap:10px;margin:14px 0 0;padding:9px 16px;border:1px solid var(--line);border-radius:999px;background:rgba(227,191,115,.06);color:var(--text);font-size:.9rem}
+.ship-note svg{width:20px;height:20px;stroke:var(--gold-2);flex:none}
+.ship-note strong{color:var(--gold-2)}
+.cart-ship{display:flex;justify-content:space-between;align-items:baseline;font-size:.95rem;color:var(--muted)}
+.cart-ship strong{color:var(--text)}
+@media(max-width:860px){.ship-note{justify-content:center;text-align:left;font-size:.85rem}}

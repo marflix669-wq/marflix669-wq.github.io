@@ -46,7 +46,10 @@
   function cartTotals(){
     let subtotal = 0;
     cart.forEach(item => { const p = findProduct(item.productId); if(p) subtotal += p.price * item.qty; });
-    return {subtotal, total: subtotal};
+    const qty = cart.reduce((n, i) => n + i.qty, 0);
+    const cfg = (window.R2A_CONFIG && R2A_CONFIG.shipping) || { fee: 4.9, freeFrom: 2 };
+    const shipping = !qty ? 0 : (qty >= cfg.freeFrom ? 0 : cfg.fee);
+    return {subtotal, shipping, qty, total: subtotal + shipping};
   }
   function renderCart(){
     const wrap = document.getElementById('cartItems');
@@ -66,7 +69,10 @@
       }).join('');
     }
     const total = document.getElementById('cartTotal');
-    if(total) total.textContent = money(cartTotals().total);
+    const t = cartTotals();
+    if(total) total.textContent = money(t.total);
+    const shipEl = document.getElementById('cartShip');
+    if(shipEl) shipEl.textContent = !t.qty ? '—' : (t.shipping ? money(t.shipping) : 'Offerte');
     const pay = document.getElementById('checkoutBtn'); if(pay) pay.disabled = cart.length === 0;
     wrap.querySelectorAll('[data-remove-cart]').forEach(btn => btn.onclick = () => removeFromCart(Number(btn.dataset.removeCart)));
     wrap.querySelectorAll('[data-cq]').forEach(btn => btn.onclick = () => changeQty(Number(btn.dataset.i), Number(btn.dataset.cq)));
@@ -229,7 +235,7 @@
 
   function loadCheckout(){
     if(window.R2A_openCheckout) return Promise.resolve();
-    return new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = '/assets/js/checkout.js?v=20261012a'; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); });
+    return new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = '/assets/js/checkout.js?v=20261028a'; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); });
   }
   function bindBuy(root){
     root.querySelectorAll('.product-panel').forEach(panel => {
@@ -299,7 +305,7 @@
             <div class="buy-label">Quantité</div>
             <div class="qty" data-qty-box><button type="button" data-q="-1" aria-label="Moins">−</button><span data-qty>1</span><button type="button" data-q="1" aria-label="Plus">+</button></div>
             <div class="buy-error" data-buy-error role="alert" hidden>Choisis ta taille.</div>
-            <div class="notice" style="margin:18px 0">Prix unique : 30 €. L’adresse de livraison et le code promo se saisissent dans le paiement sécurisé Stripe.</div>
+            <div class="notice" style="margin:18px 0">Prix unique : 30 €. Livraison Mondial Relay <strong>4,90 €</strong>, <strong>offerte dès 2 maillots</strong>. L’adresse, le Point Relais et le code promo se saisissent dans le paiement sécurisé.</div>
             <div class="row-actions">
               ${p.stock <= 0
                 ? `<button class="btn btn-primary" disabled aria-disabled="true">Rupture de stock</button>`
