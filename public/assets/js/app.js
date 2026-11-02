@@ -235,7 +235,7 @@
 
   function loadCheckout(){
     if(window.R2A_openCheckout) return Promise.resolve();
-    return new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = '/assets/js/checkout.js?v=20261028a'; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); });
+    return new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = '/assets/js/checkout.js?v=20261102a'; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); });
   }
   function bindBuy(root){
     root.querySelectorAll('.product-panel').forEach(panel => {
@@ -285,6 +285,7 @@
               <div class="viewer-hint">Glisse pour incliner</div>
             </div>
             <div class="viewer-tabs">
+              <button type="button" data-view="worn" data-src="${DATA.asset('images/products/' + p.category + '/worn.png')}" data-alt="${p.name} — porté" hidden>Porté</button>
               <button type="button" data-view="front" data-src="${g[1] || g[0]}" data-alt="${p.name} — face">Face</button>
               <button type="button" data-view="back" data-src="${g[2] || g[0]}" data-alt="${p.name} — dos">Dos</button>
               <button type="button" data-view="overview" data-src="${g[0]}" data-alt="${p.name} — vue d’ensemble">Vue d’ensemble</button>
@@ -305,7 +306,7 @@
             <div class="buy-label">Quantité</div>
             <div class="qty" data-qty-box><button type="button" data-q="-1" aria-label="Moins">−</button><span data-qty>1</span><button type="button" data-q="1" aria-label="Plus">+</button></div>
             <div class="buy-error" data-buy-error role="alert" hidden>Choisis ta taille.</div>
-            <div class="notice" style="margin:18px 0">Prix unique : 30 €. Livraison Mondial Relay <strong>4,90 €</strong>, <strong>offerte dès 2 maillots</strong>. L’adresse, le Point Relais et le code promo se saisissent dans le paiement sécurisé.</div>
+            <div class="notice" style="margin:18px 0">Prix unique : 30 €. Livraison Mondial Relay <strong>4,90 €</strong>, <strong>offerte dès 2 maillots</strong>. Tu choisis ton Point Relais avant le paiement ; l’adresse et le code promo se saisissent dans le paiement sécurisé.</div>
             <div class="row-actions">
               ${p.stock <= 0
                 ? `<button class="btn btn-primary" disabled aria-disabled="true">Rupture de stock</button>`
@@ -321,6 +322,12 @@
 
     bindBuy(target);
     if(window.R2A_initViewers) window.R2A_initViewers(target);
+    // Photo « portée » : l'onglet n'apparaît (en premier) que si le fichier worn.png existe pour la catégorie
+    target.querySelectorAll('[data-view="worn"]').forEach(btn => {
+      const probe = new Image();
+      probe.onload = () => { btn.hidden = false; btn.click(); };
+      probe.src = btn.dataset.src;
+    });
     // les éléments injectés après coup doivent aussi apparaître
     if(window.R2A_fx) window.R2A_fx(target);
   }
@@ -348,5 +355,12 @@
     renderReels();
     renderCategoryPage();
     bindGeneral();
+  });
+
+  // Liens réseaux (TikTok / WhatsApp) pilotés par site-config.js
+  document.addEventListener('DOMContentLoaded', function(){
+    const c = window.R2A_CONFIG || {};
+    document.querySelectorAll('[data-tiktok]').forEach(a => { if(c.tiktokUrl) a.href = c.tiktokUrl; else a.hidden = true; });
+    document.querySelectorAll('[data-whatsapp]').forEach(a => { if(c.whatsappUrl){ a.href = c.whatsappUrl; a.target = '_blank'; a.rel = 'noopener noreferrer'; a.hidden = false; } });
   });
 })();

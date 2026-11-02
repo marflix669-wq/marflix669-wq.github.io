@@ -6,7 +6,7 @@
       category:'enfant',
       price:30,
       stock:20,
-      sizes:['4/6 ans','6/8 ans','8/10 ans','10/12 ans','12/14 ans'],
+      sizes:['6/8 ans','8/10 ans','10/12 ans','12/14 ans'],
       description:'Version enfant du maillot R2A. Léger, respirant et pensé pour bouger.',
       image:'images/products/enfant/gallery-01-front-back.png',
       gallery:['images/products/enfant/gallery-01-front-back.png','images/products/enfant/gallery-02-front.png','images/products/enfant/gallery-03-back.png'],
@@ -18,7 +18,7 @@
       category:'homme',
       price:30,
       stock:20,
-      sizes:['XS','S','M','L','XL','2XL','3XL','4XL'],
+      sizes:['S','M','L','XL','2XL','3XL','4XL'],
       description:'Version homme du maillot R2A. Coupe performance, confort et style.',
       image:'images/products/homme/gallery-01-front-back.png',
       gallery:['images/products/homme/gallery-01-front-back.png','images/products/homme/gallery-02-front.png','images/products/homme/gallery-03-back.png'],
@@ -65,6 +65,8 @@
             item.gallery = BUILTIN_GALLERIES[item.id].slice();
             item.image = BUILTIN_GALLERIES[item.id][0];
           }
+          const def = DEFAULT_PRODUCTS.find(d => d.id === item.id);
+          if(def) item.sizes = def.sizes.slice();
           if(item.stock === undefined || item.stock === null || Number.isNaN(Number(item.stock))){
             item.stock = 20;
           }else{

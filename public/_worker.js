@@ -2,10 +2,15 @@
 // Variables à définir dans Cloudflare (Settings → Variables and Secrets) :
 //   STRIPE_SECRET_KEY       (sk_test_… puis sk_live_…)  — SECRET
 //   STRIPE_PUBLISHABLE_KEY  (pk_test_… puis pk_live_…)
+// Livraison Mondial Relay via Sendcloud (optionnel, voir plus bas) :
+//   SENDCLOUD_PUBLIC_KEY, SENDCLOUD_SECRET_KEY  — clés de l'intégration Sendcloud (la secrète = SECRET)
+//   Si SENDCLOUD_PUBLIC_KEY est définie, le choix d'un Point Relais devient obligatoire avant le paiement.
+//   Pour créer l'envoi automatiquement après paiement, ajouter aussi :
+//   SENDCLOUD_SHIPPING_OPTION_CODE, SENDCLOUD_SENDER_ADDRESS_ID, SENDCLOUD_ITEM_WEIGHT_KG (ex. 0.300)
 // Le prix est fixé ICI, côté serveur : le navigateur ne peut pas le modifier.
 const PRODUCTS = {
-  enfant: { name: 'Maillot R2A Enfant', amount: 3000, sizes: ['4/6 ans','6/8 ans','8/10 ans','10/12 ans','12/14 ans'] },
-  homme:  { name: 'Maillot R2A Homme',  amount: 3000, sizes: ['XS','S','M','L','XL','2XL','3XL','4XL'] },
+  enfant: { name: 'Maillot R2A Enfant', amount: 3000, sizes: ['6/8 ans','8/10 ans','10/12 ans','12/14 ans'] },
+  homme:  { name: 'Maillot R2A Homme',  amount: 3000, sizes: ['S','M','L','XL','2XL','3XL','4XL'] },
   femme:  { name: 'Maillot R2A Femme',  amount: 3000, sizes: ['XS','S','M','L','XL'] }
 };
 const MAX_QTY = 10;
@@ -34,6 +39,18 @@ async function checkout(request, env) {
   }
   if (total > 20) return json({ error: 'bad_request' }, 400);
 
+  // Point Relais choisi dans le sélecteur Sendcloud (validé ici, jamais fait confiance au navigateur)
+  const cl = (v, n) => String(v == null ? '' : v).replace(/[\u0000-\u001f]/g, ' ').trim().slice(0, n);
+  let relay = null;
+  const rb = b && b.relay;
+  if (rb && typeof rb === 'object') {
+    const id = String(rb.id == null ? '' : rb.id);
+    if (!/^[0-9]{1,12}$/.test(id)) return json({ error: 'bad_request' }, 400);
+    relay = { id, name: cl(rb.name, 120), street: cl(rb.street, 120), house_number: cl(rb.house_number, 20),
+              postal_code: cl(rb.postal_code, 12), city: cl(rb.city, 80), post_number: cl(rb.post_number, 30) };
+  }
+  if (!relay && env.SENDCLOUD_PUBLIC_KEY) return json({ error: 'relay_required' }, 400);
+
   const origin = new URL(request.url).origin;
   const build = (uiMode) => {
     const f = new URLSearchParams();
@@ -55,13 +72,21 @@ async function checkout(request, env) {
     f.set('shipping_options[0][shipping_rate_data][display_name]', free ? 'Mondial Relay — livraison offerte' : 'Mondial Relay');
     f.set('shipping_options[0][shipping_rate_data][fixed_amount][amount]', String(free ? 0 : SHIPPING_CENTS));
     f.set('shipping_options[0][shipping_rate_data][fixed_amount][currency]', 'eur');
-    f.set('custom_fields[0][key]', 'point_relais');
-    f.set('custom_fields[0][label][type]', 'custom');
-    f.set('custom_fields[0][label][custom]', 'Point Relais souhaité (nom + ville)');
-    f.set('custom_fields[0][type]', 'text');
-    f.set('custom_fields[0][optional]', 'true');
+    if (!relay) { // ancien mode : champ texte libre (si Sendcloud n'est pas activé)
+      f.set('custom_fields[0][key]', 'point_relais');
+      f.set('custom_fields[0][label][type]', 'custom');
+      f.set('custom_fields[0][label][custom]', 'Point Relais souhaité (nom + ville)');
+      f.set('custom_fields[0][type]', 'text');
+      f.set('custom_fields[0][optional]', 'true');
+    }
     f.set('allow_promotion_codes', 'true');
     f.set('metadata[commande]', lines.map(l => `${l.cat} ${l.size} x${l.qty}`).join(' | '));
+    if (relay) {
+      f.set('metadata[relay_id]', relay.id);
+      f.set('metadata[relay_name]', relay.name);
+      f.set('metadata[relay_address]', `${[relay.street, relay.house_number].filter(Boolean).join(' ')}, ${relay.postal_code} ${relay.city}`);
+      if (relay.post_number) f.set('metadata[relay_post_number]', relay.post_number);
+    }
     return f;
   };
   const create = async (uiMode, version) => {
@@ -146,6 +171,31 @@ async function sendMail(env, to, mail, key, replyTo) {
   if (!r.ok) throw new Error('mail_' + r.status);
 }
 
+// ---------- Création de l'envoi Sendcloud (Mondial Relay, Point Relais) ----------
+// Actif seulement si les 4 variables SENDCLOUD_* sont définies. Crée ET annonce l'envoi (l'étiquette est générée
+// et facturée par Sendcloud). Un échec n'empêche jamais la commande : il est signalé par e-mail au vendeur.
+async function createSendcloudShipment(env, s, order, relayId, postNumber) {
+  const w = Number(env.SENDCLOUD_ITEM_WEIGHT_KG) || 0.3;
+  const qty = order.items.reduce((n, i) => n + (i.qty || 0), 0) || 1;
+  const a = order.address || {};
+  const body = {
+    to_address: Object.assign({
+      name: order.name || order.email, address_line_1: a.line1 || '', postal_code: a.postal_code || '', city: a.city || '',
+      country_code: a.country || 'FR', email: order.email
+    }, a.line2 ? { address_line_2: a.line2 } : {}, order.phone ? { phone_number: order.phone } : {}, postNumber ? { po_box: postNumber } : {}),
+    from_address: { sender_address_id: Number(env.SENDCLOUD_SENDER_ADDRESS_ID) },
+    to_service_point: { id: String(relayId) },
+    ship_with: { type: 'shipping_option_code', properties: { shipping_option_code: env.SENDCLOUD_SHIPPING_OPTION_CODE } },
+    parcels: [{ weight: { value: (w * qty).toFixed(3), unit: 'kg' } }]
+  };
+  const r = await fetch('https://panel.sendcloud.sc/api/v3/shipments/announce', {
+    method: 'POST',
+    headers: { Authorization: 'Basic ' + btoa(env.SENDCLOUD_PUBLIC_KEY + ':' + env.SENDCLOUD_SECRET_KEY), 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  if (!r.ok) throw new Error('sendcloud_' + r.status + ' ' + (await r.text().catch(() => '')).slice(0, 300));
+}
+
 async function stripeWebhook(request, env) {
   if (!env.STRIPE_WEBHOOK_SECRET || !env.STRIPE_SECRET_KEY) return json({ error: 'not_configured' }, 503);
   const body = await request.text();
@@ -154,7 +204,9 @@ async function stripeWebhook(request, env) {
   if (ev.type !== 'checkout.session.completed' && ev.type !== 'checkout.session.async_payment_succeeded') return json({ ok: true, ignored: true });
   const id = ev.data && ev.data.object && ev.data.object.id;
   if (!/^cs_(test|live)_[A-Za-z0-9]+$/.test(id || '')) return json({ error: 'bad_request' }, 400);
-  if (!env.RESEND_API_KEY || !env.MAIL_FROM) return json({ ok: true, mail: 'not_configured' });
+  const mailOn = !!(env.RESEND_API_KEY && env.MAIL_FROM);
+  const sendcloudOn = !!(env.SENDCLOUD_PUBLIC_KEY && env.SENDCLOUD_SECRET_KEY && env.SENDCLOUD_SHIPPING_OPTION_CODE && env.SENDCLOUD_SENDER_ADDRESS_ID);
+  if (!mailOn && !sendcloudOn) return json({ ok: true, mail: 'not_configured' });
 
   const r = await fetch('https://api.stripe.com/v1/checkout/sessions/' + id + '?expand[]=line_items', { headers: { Authorization: 'Bearer ' + env.STRIPE_SECRET_KEY } });
   const s = await r.json().catch(() => ({}));
@@ -166,14 +218,29 @@ async function stripeWebhook(request, env) {
     email: cd.email || '', name: (sh.name || cd.name || ''), phone: cd.phone || '', address: sh.address ? Object.assign({ name: sh.name || cd.name }, sh.address) : (cd.address || null),
     total: s.amount_total || 0,
     shipping: (s.total_details && s.total_details.amount_shipping) || 0,
-    relay: ((s.custom_fields || []).find((c) => c.key === 'point_relais') || { text: {} }).text.value || '',
+    relay: (s.metadata && s.metadata.relay_id)
+      ? `${s.metadata.relay_name || ''} — ${s.metadata.relay_address || ''} (n° ${s.metadata.relay_id})`
+      : (((s.custom_fields || []).find((c) => c.key === 'point_relais') || { text: {} }).text || {}).value || '',
     items: ((s.line_items && s.line_items.data) || []).map((l) => ({ name: l.description, qty: l.quantity, total: l.amount_total }))
   };
   const origin = new URL(request.url).origin;
-  try {
-    if (order.email) await sendMail(env, order.email, orderEmail(order, origin, false), 'cust-' + id, env.OWNER_EMAIL);
-    if (env.OWNER_EMAIL) await sendMail(env, env.OWNER_EMAIL, orderEmail(order, origin, true), 'own-' + id, order.email);
-  } catch (_) { return json({ error: 'mail_failed' }, 500); } // Stripe réessaiera ; l'Idempotency-Key évite les doublons
+  if (mailOn) {
+    try {
+      if (order.email) await sendMail(env, order.email, orderEmail(order, origin, false), 'cust-' + id, env.OWNER_EMAIL);
+      if (env.OWNER_EMAIL) await sendMail(env, env.OWNER_EMAIL, orderEmail(order, origin, true), 'own-' + id, order.email);
+    } catch (_) { return json({ error: 'mail_failed' }, 500); } // Stripe réessaiera ; l'Idempotency-Key évite les doublons
+  }
+  // L'envoi Sendcloud vient APRÈS les e-mails : si un e-mail échoue, Stripe réessaie sans créer de doublon d'envoi.
+  if (sendcloudOn && s.metadata && s.metadata.relay_id) {
+    try { await createSendcloudShipment(env, s, order, s.metadata.relay_id, s.metadata.relay_post_number || ''); }
+    catch (e) {
+      if (mailOn && env.OWNER_EMAIL) {
+        const t = 'ATTENTION : l’envoi Sendcloud n’a pas été créé pour cette commande. Crée-le à la main dans Sendcloud.\n\nPoint Relais : ' + order.relay + '\nClient : ' + order.name + ' ' + order.email + '\nCommande Stripe : ' + id + '\nErreur : ' + String(e && e.message || e);
+        try { await sendMail(env, env.OWNER_EMAIL, { subject: 'Envoi Sendcloud à créer — ' + (order.name || order.email), html: '<pre style="font-family:Arial">' + esc(t) + '</pre>', text: t }, 'sc-' + id); } catch (_) {}
+      }
+      return json({ ok: true, sendcloud: 'failed' });
+    }
+  }
   return json({ ok: true });
 }
 
