@@ -13,3 +13,7 @@
 
 /assets/js/*
   Cache-Control: public, max-age=86400
+
+/.well-known/*
+  Content-Type: text/plain
+  Cache-Control: public, max-age=3600
