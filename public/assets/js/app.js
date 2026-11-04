@@ -285,7 +285,7 @@
               <div class="viewer-hint">Glisse pour incliner</div>
             </div>
             <div class="viewer-tabs">
-              <button type="button" data-view="worn" data-src="${DATA.asset('images/products/' + p.category + '/worn.png')}" data-alt="${p.name} — porté" hidden>Porté</button>
+              <button type="button" data-view="worn" data-src="${DATA.asset('images/products/' + p.category + '/worn.jpg')}" data-alt="${p.name} — porté" hidden>Porté</button>
               <button type="button" data-view="front" data-src="${g[1] || g[0]}" data-alt="${p.name} — face">Face</button>
               <button type="button" data-view="back" data-src="${g[2] || g[0]}" data-alt="${p.name} — dos">Dos</button>
               <button type="button" data-view="overview" data-src="${g[0]}" data-alt="${p.name} — vue d’ensemble">Vue d’ensemble</button>
@@ -322,7 +322,7 @@
 
     bindBuy(target);
     if(window.R2A_initViewers) window.R2A_initViewers(target);
-    // Photo « portée » : l'onglet n'apparaît (en premier) que si le fichier worn.png existe pour la catégorie
+    // Photo « portée » : l'onglet n'apparaît (en premier) que si le fichier worn.jpg existe pour la catégorie
     target.querySelectorAll('[data-view="worn"]').forEach(btn => {
       const probe = new Image();
       probe.onload = () => { btn.hidden = false; btn.click(); };

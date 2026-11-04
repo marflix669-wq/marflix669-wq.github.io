@@ -4,7 +4,7 @@
     instagramHandle: '@r2a.coaching',
     tiktokUrl: 'https://www.tiktok.com/@r2a.coaching',
     // Numéro WhatsApp au format wa.me, ex. 'https://wa.me/33612345678'. Vide = le bouton WhatsApp reste caché.
-    whatsappUrl: '',
+    whatsappUrl: 'https://wa.me/33646089233',
     lowStockThreshold: 5,
     // Liens de paiement Stripe (un par catégorie). Collez ici les liens https://buy.stripe.com/...
     // Secours uniquement (si le paiement intégré ne répond pas). Vide = Instagram. Mettre des liens buy.stripe.com/… de PRODUCTION (pas test_).
