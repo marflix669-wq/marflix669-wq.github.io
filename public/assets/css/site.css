@@ -667,3 +667,15 @@ body::before{display:none}
 .tile-logo-wrap{align-items:stretch;justify-content:flex-start}
 .tile-media .tile-logo{position:absolute;inset:0;margin:auto;width:84px;height:84px;color:inherit}
 .tile-cap{display:block;padding:12px 10px 14px;text-align:center;font-size:.72rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-3)}
+
+/* ---- Logo Instagram (accueil) : centré, plus grand ---- */
+.tile-media--ig{display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 50%,rgba(214,41,118,.16),rgba(12,12,12,0) 62%),#0c0c0c}
+.ig-logo{display:block;width:clamp(96px,46%,150px);aspect-ratio:1;border-radius:26%;box-shadow:0 14px 34px -10px rgba(214,41,118,.55);transition:transform .3s ease}
+.ig-logo svg{display:block;width:100%;height:100%}
+.tile:hover .ig-logo{transform:scale(1.06)}
+
+/* ---- Sélecteur de couleur ---- */
+.colors{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+.color-chip{display:inline-flex;align-items:center;gap:8px;padding:7px 14px 7px 8px;border-radius:999px;border:1px solid var(--line);font-size:.8rem;font-weight:700;color:var(--gold-3);background:transparent;cursor:pointer}
+.color-chip i{width:18px;height:18px;border-radius:50%;border:1px solid rgba(255,255,255,.35);display:block}
+.color-chip.on{border-color:var(--gold-2);background:rgba(227,191,115,.1);color:#fff}
