@@ -2,8 +2,8 @@
   X-Content-Type-Options: nosniff
   X-Frame-Options: DENY
   Referrer-Policy: strict-origin-when-cross-origin
-  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
-  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; media-src 'self' https:; frame-src https://www.instagram.com; connect-src 'self' https://www.instagram.com; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests
+  Permissions-Policy: camera=(), microphone=(), geolocation=(self "https://*.sendcloud.sc"), payment=(self "https://js.stripe.com" "https://*.stripe.com"), usb=()
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://js.stripe.com https://embed.sendcloud.sc https://*.sendcloud.sc; style-src 'self' 'unsafe-inline' https://*.sendcloud.sc; img-src 'self' data: https:; media-src 'self' https:; frame-src https://www.instagram.com https://js.stripe.com https://*.stripe.com https://embed.sendcloud.sc https://*.sendcloud.sc; connect-src 'self' https://www.instagram.com https://api.stripe.com https://*.stripe.com https://*.sendcloud.sc; font-src 'self' https://*.sendcloud.sc data:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests
 
 /assets/images/*
   Cache-Control: public, max-age=604800
@@ -13,3 +13,7 @@
 
 /assets/js/*
   Cache-Control: public, max-age=86400
+
+/.well-known/*
+  Content-Type: text/plain
+  Cache-Control: public, max-age=3600
