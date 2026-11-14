@@ -640,7 +640,7 @@ body::before{display:none}
 
 /* ---- Mise à jour R2A (novembre 2026) ---- */
 .fan-item.c-white{background:linear-gradient(160deg,#fff,#cfd3d8)}
-.fan-item.c-blue,.nouv-card.c-blue{background:linear-gradient(160deg,#1f4fd8,#0b1f6b)}
+.fan-item.c-blue,.nouv-card.c-blue{background:linear-gradient(160deg,#a4d6d4,#6fa8a6)}
 .nouv-card.c-white{background:linear-gradient(160deg,#fff,#cfd3d8)}
 .fan-item em,.nouv-card em,.tile-ph em{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-style:normal;font-size:.7rem;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:rgba(6,6,6,.55)}
 .fan-item.c-blue em,.nouv-card.c-blue em{color:rgba(255,255,255,.7)}
@@ -679,9 +679,4 @@ body::before{display:none}
 .color-chip{display:inline-flex;align-items:center;gap:8px;padding:7px 14px 7px 8px;border-radius:999px;border:1px solid var(--line);font-size:.8rem;font-weight:700;color:var(--gold-3);background:transparent;cursor:pointer}
 .color-chip i{width:18px;height:18px;border-radius:50%;border:1px solid rgba(255,255,255,.35);display:block}
 .color-chip.on{border-color:var(--gold-2);background:rgba(227,191,115,.1);color:#fff}
-
-/* Nouveauté : cartes recto / verso */
-.nouv-grid{max-width:none}
-.nouv-card{aspect-ratio:16/10;background:#0a0a0a}
 .fan-item.c-white,.fan-item.c-blue{background:#0a0a0a}
-@media(max-width:700px){.nouv-grid{grid-template-columns:1fr}}

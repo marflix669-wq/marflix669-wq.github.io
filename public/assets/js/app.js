@@ -324,7 +324,7 @@
             <div class="colors" data-colors role="radiogroup" aria-label="Couleur">
               <button type="button" class="color-chip on" role="radio" aria-checked="true" data-color="" title="Noir"><i style="background:#0b0b0b"></i>Noir</button>
               <button type="button" class="color-chip" role="radio" aria-checked="false" data-color="-blanc" title="Blanc"><i style="background:#f4f4f6"></i>Blanc</button>
-              <button type="button" class="color-chip" role="radio" aria-checked="false" data-color="-bleu" title="Bleu"><i style="background:#1f45c9"></i>Bleu</button>
+              <button type="button" class="color-chip" role="radio" aria-checked="false" data-color="-bleu" title="Bleu"><i style="background:#a4d6d4"></i>Bleu</button>
             </div>
             <div class="buy-label">Taille</div>
             <div class="sizes" data-sizes role="radiogroup" aria-label="Taille">${p.sizes.map(s => `<button type="button" class="size-chip size-pick" role="radio" aria-checked="false" data-size="${s}">${s}</button>`).join('')}</div>
