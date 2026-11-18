@@ -685,3 +685,15 @@ body::before{display:none}
    Réglages si besoin : --ig-head = hauteur masquée en haut, --ig-foot = marge en bas */
 .reel-ig-shell{--ig-head:56px;--ig-foot:240px}
 .reel-ig-shell .reel-ig-embed{position:absolute;left:-1px;top:calc(var(--ig-head) * -1);width:calc(100% + 2px);max-width:none;height:calc(100% + var(--ig-head) + var(--ig-foot))}
+
+/* ---- Reels : on ne garde que la vidéo (zone 4:5 du lecteur Instagram), cartes centrées ---- */
+.reel-card:has(.reel-ig-shell){aspect-ratio:4/5}
+.reel-ig-shell{inset:0 0 2px 0}
+.reel-modal-panel:has(.reel-ig-shell){aspect-ratio:4/5;width:min(520px,92vw,calc(90vh * .8))}
+@media (min-width:641px){
+  .reels-grid{display:flex;flex-wrap:wrap;justify-content:center;gap:22px}
+  .reel-card{flex:0 0 clamp(230px,25vw,330px)}
+}
+@media (max-width:640px){
+  .reels-grid{padding-inline:13vw;scroll-padding-inline:13vw}
+}
