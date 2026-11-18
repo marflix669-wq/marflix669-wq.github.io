@@ -43,7 +43,7 @@
   const DEFAULT_REELS = [
     { url: 'https://www.instagram.com/reel/DbTBu_1IaVG/', title: 'Vidéo R2A 1' },
     { url: 'https://www.instagram.com/reel/DU55aCviMyy/', title: 'Vidéo R2A 2' },
-    { url: 'https://www.instagram.com/reel/DUJd5VeCBjA/', title: 'Vidéo R2A 3' }
+    { url: 'https://www.instagram.com/reel/DYCKLbLogvD/', title: 'Vidéo R2A 3' }
   ];
 
   const STORAGE_KEYS = {
