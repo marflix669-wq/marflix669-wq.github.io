@@ -170,6 +170,7 @@
         if(c) c.innerHTML = '';
       });
     }
+    stopGridPlayback();
     const content = document.getElementById('reelModalContent');
     if(content) content.innerHTML = reelMedia(reel, i);
     modal.classList.add('open');
@@ -205,6 +206,47 @@
     });
   }
 
+  // Une seule vidéo à la fois : quand on en lance une autre, la précédente est arrêtée.
+  // (Les lecteurs Instagram sont des iframes d'un autre site : on ne peut pas les « mettre en pause »,
+  //  on détecte donc celui avec lequel on interagit et on recharge l'ancien, ce qui l'arrête.)
+  let stopGridPlayback = () => {};
+  function setupExclusivePlayback(root){
+    const frames = Array.from(root.querySelectorAll('iframe.reel-ig-embed'));
+    const videos = Array.from(root.querySelectorAll('video.reel-native-video'));
+    let active = null;
+    const reset = f => {
+      if(!f) return;
+      const url = f.dataset.src || f.getAttribute('src');
+      f.dataset.src = url;
+      f.dataset.resets = String(Number(f.dataset.resets || 0) + 1);
+      f.src = 'about:blank';
+      setTimeout(() => { f.src = url; }, 60);
+    };
+    const stopActive = () => { if(active){ reset(active); active = null; } };
+    stopGridPlayback = stopActive;
+    const check = () => {
+      const a = document.activeElement;
+      if(a && frames.includes(a) && a !== active){
+        if(active) reset(active);
+        active = a;
+        videos.forEach(v => v.pause());
+      }
+    };
+    window.addEventListener('blur', () => setTimeout(check, 0));
+    setInterval(check, 250);
+    videos.forEach(v => v.addEventListener('play', () => {
+      videos.forEach(o => { if(o !== v) o.pause(); });
+      stopActive();
+    }));
+    // une vidéo qui sort de l'écran s'arrête aussi
+    if('IntersectionObserver' in window){
+      const io = new IntersectionObserver(entries => {
+        entries.forEach(en => { if(!en.isIntersecting && en.target === active) stopActive(); });
+      }, { threshold: 0.2 });
+      frames.forEach(f => io.observe(f));
+    }
+  }
+
   function renderReels(){
     const target = document.getElementById('reelsGrid');
     if(!target) return;
@@ -222,6 +264,7 @@
       </article>`).join('');
 
     bindVideoControls(target);
+    setupExclusivePlayback(target);
     if(window.R2A_fx) window.R2A_fx(target);
     target.querySelectorAll('[data-expand-reel]').forEach(btn => {
       btn.onclick = () => openReelModal(current[Number(btn.dataset.expandReel)], Number(btn.dataset.expandReel));
